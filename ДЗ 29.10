@@ -1,0 +1,34 @@
+#include <iostream>
+#include "math.h"
+using namespace std;
+
+int main()
+{ 
+    setlocale(LC_ALL, "russian");
+    int x, y, z;
+    cin >> x;
+    cin >> y;
+    double x0 = x, y0 = y;
+    x = x * x;
+    y = y * y;
+    
+    for (int i = 0; i < 2; i++) {
+        switch (i) {
+        case 0:
+            x = -2.5;
+            y = -0.1;
+            break;
+
+        case 1:
+            x = -1.5;
+            y = 0.1;
+            break;
+        }
+    }
+
+    if ((y0 >= -0.5 * x0 - 1) && (y0 <= 0.5 * x0 + 1) && (x0 < 0))
+        cout << "Входит" << endl;
+    else
+        cout << "Не входит" << endl;
+    return 0;
+}
