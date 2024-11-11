@@ -1,0 +1,44 @@
+#include <iostream>
+#include <windows.h>
+#include <time.h>
+using namespace std;
+
+void Swap(int* P, int i)
+{
+    int temp;
+    temp = P[i];
+    P[i] = P[i - 1];
+    P[i - 1] = temp;
+}
+void ShakerSort(int* P, int Start, int N)
+{
+    int Left, Right, i;
+    Left = Start;
+    Right = N - 1;
+    while (Left <= Right)
+    {
+        for (i = Right; i >= Left; i--)
+            if (P[i - 1] < P[i]) Swap(P, i);
+        Left++;
+        for (i = Left; i <= Right; i++)
+            if (P[i - 1] < P[i]) Swap(P, i);
+        Right--;
+    }
+}
+int main()
+{
+    srand(6);
+    int a = 50, b = 5, k, n = 12;
+    cout << "Massive range: A= " << a << "; " << "B= " << b << ";" << endl;
+    cout << "Massive size: " << n << endl; cout << endl;
+    cout << " Start massive: " << endl;
+    int* P = new int[n];
+    for (k = 0; k <= n; k++)
+    {
+        P[k] = a + rand() % (b - a + 1);
+        cout << P[k] << " ";
+    }
+    ShakerSort(P, 1, n); cout << endl;
+    cout << " End massive: " << endl;
+    for (k = 0; k < n; k++)cout << P[k] << " ";
+}
