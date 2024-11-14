@@ -1,0 +1,167 @@
+//*#include <iostream>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    long long number;
+    cout << "Введите число: ";
+    cin >> number;
+
+    int sum = 0; 
+
+    
+    while (number != 0) {
+        sum += number % 10; 
+        number /= 10; 
+    }
+
+    
+    cout << "Сумма цифр числа: " << sum << endl;
+
+    return 0;
+}*//
+
+
+
+//*#include <iostream>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int N; 
+    cout << "Введите количество дней (N): ";
+    cin >> N;
+
+    int initialDistance = 15;
+    int increment = 2;
+
+    int totalDistance = 0;
+
+    for (int day = 0; day < N; day++) {
+        totalDistance += (initialDistance + day * increment);
+    }
+
+    cout << "Общее расстояние, пройденное улиткой за " << N << " дней: " << totalDistance << " см." << endl;
+
+    return 0;
+}*//
+
+
+
+
+//*#include <iostream>
+#include <vector>
+#include <set>
+#include <chrono>
+using namespace std;
+
+void generateCombinations(int number, set<int>& combinations) {
+    int hundreds = number / 100;
+    int tens = (number / 10) % 10;
+    int units = number % 10;
+
+    if (hundreds != tens && hundreds != units && tens != units) {
+        combinations.insert(number);
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    set<int> combinations; 
+
+    for (int i = 100; i < 1000; i++) {
+        generateCombinations(i, combinations);
+    }
+
+    cout << "Все возможные трехзначные коды с неповторяющимися цифрами:\n";
+    for (int code : combinations) {
+        cout << code << endl;
+    }
+
+    int totalCombinations = combinations.size();
+    cout << "Всего комбинаций: " << totalCombinations << endl;
+
+    int timePerCombinationInSeconds = 3;
+    int totalTimeInSeconds = totalCombinations * timePerCombinationInSeconds;
+
+    int hours = totalTimeInSeconds / 3600;
+    int minutes = (totalTimeInSeconds % 3600) / 60;
+    int seconds = totalTimeInSeconds % 60;
+
+        cout << "Время, необходимое для открытия чемодана в худшем случае: "
+        << hours << " час(ов), " << minutes << " минут(ы), " << seconds << " секунд(ы)." << endl;
+
+    return 0;
+}*//
+
+
+
+
+
+//*#include <iostream>
+using namespace std;
+
+bool isPrime(int number) {
+    if (number <= 1) {
+        return false; 
+    }
+    for (int i = 2; i * i <= number; i++) { 
+        if (number % i == 0) {
+            return false; 
+        }
+    }
+    return true; 
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    cout << "Простые числа в диапазоне от 2 до 1000:\n";
+
+    for (int num = 2; num <= 1000; num++) {
+        if (isPrime(num)) {
+            cout << num << " "; 
+        }
+    }
+
+    cout << endl;
+    return 0;
+}*//
+
+
+
+
+#include <iostream>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int numSymbols;
+    char symbol;
+    char direction;
+
+    cout << "Введите количество символов: ";
+    cin >> numSymbols;
+
+    cout << "Введите символ, который хотите использовать: ";
+    cin >> symbol;
+
+    cout << "Введите направление линии (h - горизонтальная, v - вертикальная): ";
+    cin >> direction;
+
+    if (direction == 'h') {
+        for (int i = 0; i < numSymbols; i++) {
+            cout << symbol;
+        }
+        cout << endl;
+    }
+    else if (direction == 'v') {
+        for (int i = 0; i < numSymbols; i++) {
+            cout << symbol << endl; 
+        }
+    }
+    else {
+        cout << "Неверное направление. Пожалуйста, введите 'h' для горизонтальной линии или 'v' для вертикальной." << endl;
+    }
+
+    return 0;
+}
