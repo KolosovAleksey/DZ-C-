@@ -1,0 +1,30 @@
+#include <iostream>
+using namespace std;
+
+int fibonacci(int n) {
+    if (n <= 0) {
+        throw invalid_argument("n должно быть положительным целым числом");
+    }
+    if (n == 1 || n == 2) {
+        return 1; 
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n;
+
+    cout << "Введите номер числа Фибоначчи (n): ";
+    cin >> n;
+
+    try {
+        int result = fibonacci(n);
+        cout << "Число Фибоначчи с номером " << n << " равно " << result << endl;
+    }
+    catch (const invalid_argument& e) {
+        cerr << e.what() << endl;
+    }
+
+    return 0;
+}
