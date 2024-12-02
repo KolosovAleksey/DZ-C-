@@ -1,0 +1,249 @@
+#include <iostream>
+using namespace std;
+
+
+//38
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+
+    int x, y, z;
+    cout << "Введите х";
+    cin >> x;
+    cout << "Введите y";
+    cin >> y;
+    if (x > y)
+    {
+        z = x - y;
+        cout << "Z=" << z << endl;
+    }
+    else {
+        z = y - x + 1;
+        cout << "Z=" << z << endl;
+    }
+    return 0;
+}*/
+
+//41
+
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    int a, b, c;
+    cout << "Введите a=";
+    cin >> a;
+    cout << "Введите b=";
+    cin >> b;
+    cout << "Введите c=";
+    cin >> c;
+    
+    if (a >= 1 && a <= 3) {
+        cout << "a=" << a << endl;
+    }
+    if (b >= 1 && b <= 3) {
+        cout << "b=" << b << endl;
+    }
+    if (c >= 1 && c <= 3) {
+        cout << "c=" << c << endl;
+    }
+    
+
+    return 0;
+}*/
+
+//74
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    
+    int n;
+    cout << "Ввести число не больше 100\n";
+    cin >> n;
+    if (n < 2) {
+        cout << n << "год";
+    }
+    else if (n > 20 && n < 22) {
+        cout << n << "год";
+    }
+    else if (n > 30 && n < 32) {
+        cout << n << "год";
+    }
+    else if (n > 40 && n < 42) {
+        cout << n << "год";
+    }
+    else if (n > 50 && n < 52) {
+        cout << n << "год";
+    }
+    else if (n > 60 && n < 62) {
+        cout << n << "год";
+    }
+    else if (n > 70 && n < 72) {
+        cout << n << "год";
+    }
+    else if (n > 80 && n < 82) {
+        cout << n << "год";
+    }
+    else if (n > 90 && n < 92) {
+        cout << n << "год";
+    }
+    else if (n > 1 && n < 5) {
+        cout << n << " года";
+    }
+    else if (n > 21 && n < 25) {
+        cout << n << " года";
+    }
+    else if (n > 31 && n < 35) {
+        cout << n << " года";
+    }
+    else if (n > 41 && n < 45) {
+        cout << n << " года";
+    }
+    else if (n > 51 && n < 55) {
+        cout << n << " года";
+    }
+    else if (n > 61 && n < 65) {
+        cout << n << " года";
+    }
+    else if (n > 71 && n < 75) {
+        cout << n << " года";
+    }
+    else if (n > 81 && n < 85) {
+        cout << n << " года";
+    }
+    else if (n > 91 && n < 95) {
+        cout << n << " года";
+    }
+    else if (n > 4 && n < 21) {
+        cout << n << "Лет";
+    }
+    else if (n > 24 && n < 31) {
+        cout << n << "Лет";
+    }
+    else if (n > 34 && n < 41) {
+        cout << n << "Лет";
+    }
+    else if (n > 44 && n < 51) {
+        cout << n << "Лет";
+    }
+    else if (n > 54 && n < 61) {
+        cout << n << "Лет";
+    }
+    else if (n > 64 && n < 71) {
+        cout << n << "Лет";
+    }
+    else if (n > 74 && n < 81) {
+        cout << n << "Лет";
+    }
+    else if (n > 84 && n < 91) {
+        cout << n << "Лет";
+    }
+    else if (n > 94 && n < 101) {
+        cout << n << "Лет";
+    }
+        return 0;
+}*/
+
+//75
+
+/*void sum(int gg) {
+    int a = 1;
+    int b = 1;
+    while (true) {
+        int y = 3 * a + 5 * b;
+        if (y == gg) {
+            cout << a << "" << b;
+            break;
+        }
+        if (y < gg) {
+            a++;
+            b++;
+        }
+        if (y > gg) {
+            a--;
+        }
+        if (a < 0) {
+            a = a + 5;
+            b = b + 3;
+        }
+    }
+    cout << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int size;
+    cin >> size;
+    sum(size);
+
+}*/
+
+//76
+
+/*bool isSameColor(int k, int l, int m, int n) { //Проверка цвета поля
+    return (k + l) % 2 == (m + n) % 2;
+}
+
+bool queenThreatens(int k, int l, int m, int n) { //Проверка угрожает ли ферзь полю
+    return(k == m || l == n || abs(k - m) == abs(l - n));
+}
+
+bool knightThreatens(int k, int l, int m, int n) { //Проверка угрожает ли конь полю
+    return (abs(k - m) == 2 && abs(l - n) == 1) || (abs(k - m) == 1 && abs(l - n) == 2);
+}
+
+bool rookCanMove(int k, int l, int m, int n) { //Проверка может ли Ладья за 1 ход перейти на поле
+    return (k == m || l == n);
+}
+
+bool canRookMoveInTwo(int k, int l, int m, int n) { //Проверка может ли ладья за 2 хода попасть
+    if (k != m) {
+        return k != m && ((l == n) || (m != l));
+    }
+    if (l != n) {
+        return l != n && ((k == m) || (n != k));
+    }
+    return false;
+}
+
+bool queenCanMoveInTwo(int k, int l, int m, int n) { //Проверка может ли ферзь попасть за 2 хода 
+    return(k == m || l == n || abs(k - m) == abs(l - n));
+}
+
+bool bishopCanMove(int k, int l, int m, int n) { //Проверка сможет ли слон слон попасть за 1 ход
+    return abs(k - m) == abs(l - n);
+}
+    
+void findIntermediateRook(int k, int l, int m, int n) {
+    if (!rookCanMove(k, l, m, n)) {
+        cout << "Двинуть в (";
+        if (k != m) {
+            cout << m << "," << l << ") тогда в (" << m << "," << n << ")\n";
+        }
+        else {
+            cout << k << "," << n << ") тогда в (" << m << "," << n << ")\n";
+        }
+    }
+    else {
+        cout << "" << k << "," << l << ") то (" << m << "," << n << ")\n";
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    int k, l, m, n;
+    cout << "";
+    cin >> k >> l;
+    cout << "";
+    cin >> m >> n;
+
+    cout << "Поля 1 цвета?" << (isSameColor(k, l, m, n) ? "Да" : "Нет") << endl; //a)
+    cout << "Угрожает ли ферзь полю(m,n)?" << (queenThreatens(k, l, m, n) ? "Да" : "Нет") << endl; //b)
+    cout << "Угрожает ли конь полю(m,n)?" << (knightThreatens(k, l, m, n) ? "Да" : "Нет") << endl; //c)
+    cout << "Может ли ладья за 1 ход переместиться в (m,n)?" << (rookCanMove(k, l, m, n) ? "Да" : "Нет") << endl;  //d)
+    findIntermediateRook(k, l, m, n);
+    cout << "Может ли ферзь за 1 ход переместиться в (m,n)?" << (queenCanMoveInTwo(k, l, m, n) ? "Да" : "Нет") << endl; //e)
+    cout << "Может ли слон за 1 ход переместиться в (m,n)?" << (bishopCanMove(k, l, m, n) ? "Да" : "Нет") << endl; //f)
+
+    return 0;
+}*/
