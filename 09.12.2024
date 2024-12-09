@@ -1,0 +1,116 @@
+#include <iostream>
+using namespace std;
+
+//1
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    double a;
+    double b;
+    cout << "Введите а";
+    cin >> a;
+    cout << "Введите b";
+    cin >> b;
+    if (a > b)
+    {
+        cout << "Наибольшее число:" << a << endl;
+    }
+    else if (b > a)
+    {
+        cout << "Наибольшее число:" << b << endl;
+    }
+}*/
+
+//2
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    int a;
+    cout << "Введите число:" << endl;
+    cin >> a;
+    if (a < 1)
+    {
+        cout << "Введите чило:" << endl;
+    }
+    else
+    {
+        cout << "Число от 1 до" << a << ":" << endl;
+        for (int i = 1;i <= a;++i)
+        {
+            cout << i << "";
+        }
+        cout << endl;
+    }
+    return 0;
+}*/
+
+//3
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    int number;
+    int a;
+
+    cout << "Введите число";
+    cin >> number;
+
+    if (number <= 1)
+    {
+        a = 0;
+    }
+    else
+    {
+        for (int i = 2;i * i <= number;++i)
+        {
+            if (number % i == 0)
+            {
+                a = 0;
+                break;
+            }
+        }
+    }
+    if (a)
+    {
+        cout << number << "Является простым числом" << endl;
+    }
+    else
+    {
+        cout << number << "Не является простым числом" << endl;
+    }
+    return 0;
+}*/
+
+//4
+
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    int size;
+
+    cout << "Введите размер массива";
+    cin >> size;
+
+    if (size <= 0)
+    {
+        cout << "Размер должен быть положительным" << endl;
+        return 1;
+    }
+    int* array = new int[size];
+
+    cout << "Введите" << size << "элементов массива" << endl;
+    for (int i = 0;i < size;++i)
+    {
+        cout << "Элемент" << i + 1 << ":";
+        cin >> array[i];
+    }
+    cout << "Элементы массива" << endl;
+    for (int i = 0;i < size;++i)
+    {
+        cout << array[i] << "";
+    }
+    cout << endl;
+
+    delete array;
+
+    return 0;
+}*/
