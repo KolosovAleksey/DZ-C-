@@ -1,0 +1,94 @@
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+/*string* ReverseString(string& str)
+{
+    string newStr = "";
+
+    for (int i = str.size() - 1;i >= 0; i--)
+    {
+        newStr += str[i];
+    }
+    return &newStr;
+}
+
+bool isContains(int* arr, int sizeArr, int elem)
+{
+    for (int i = 0;i < sizeArr;i++)
+    {
+        if (arr[i] == elem)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    
+    int size = 10;
+
+    int* arr = new int[size] {1, 2, 3, 4, 1, 2, 3, 5, 6, 7};
+    int* newArr = new int[size];
+
+    int j = 0;
+
+    for (int i = 0; i < size; i++)
+    {
+        if (isContains(newArr, 10, arr[i]))
+        {
+            continue;
+        }
+        else
+        {
+            newArr[j] = arr[i];
+            j++;
+        }
+    }
+
+    int* resultArr = new int[j];
+
+    for (int i = 0;i < j;i++)
+    {
+        resultArr[i] = newArr[i];
+    }
+
+    for (int i = 0;i < j; i++)
+    {
+        cout << resultArr[i];
+    }
+}*/
+/*int main() {
+    string strMain = "test string in my string";
+    string subString = "string in";
+
+    int j = 0;
+    bool flag = false;
+
+    for (int i = 0; i < strMain.size(); i++)
+    {
+        if (strMain[i] == subString[j])
+        {
+            j++;
+            if (j == subString.size())
+            {
+                cout << "Substring was found";
+                break;
+            }
+        }
+        else
+        {
+            j = 0;
+            continue;
+        }
+
+    }
+}*/
+
+
+
+
+
