@@ -1,0 +1,76 @@
+//Меняет все гласные на знак _
+/*#include <iostream>
+#include <string>
+using namespace std;
+
+string replaceVowels(string str) {
+    for (char& ch : str) { 
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' ||
+            ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U') {
+            ch = '_';
+        }
+    }
+    return str; 
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input;
+    cout << "Введите строку: ";
+    getline(cin, input); 
+    string output = replaceVowels(input); 
+    cout << "Результат: " << output << endl; 
+    return 0;
+}*/
+
+
+
+//Преобразует строку в нижний регистр(Все заглавные буквы в обычные)
+
+/*#include <iostream>
+#include <string>
+
+using namespace std;
+
+string toLowerCase(const string& str) {
+    string lowerStr; 
+    for (char ch : str) { 
+        lowerStr += tolower(ch);
+    }
+    return lowerStr;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input;
+    cout << "Введите строку: ";
+    getline(cin, input);
+    string output = toLowerCase(input);
+    cout << "Результат: " << output << endl;
+    return 0;
+}*/
+
+//Меняет строку в верхний регистр(Все обычные буквы в заглавные)
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+string toUpperCase(const string& str) {
+    string upperStr; 
+    for (char ch : str) { 
+        upperStr += toupper(ch);
+    }
+    return upperStr;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input;
+    cout << "Введите строку: ";
+    getline(cin, input); 
+    string output = toUpperCase(input); 
+    cout << "Результат: " << output << endl; 
+    return 0;
+}
