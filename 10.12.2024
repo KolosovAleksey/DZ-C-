@@ -88,7 +88,35 @@ int main()
     }
 }*/
 
+/*string* returnTest(string& str)
+{
+    string* stringPtr = new string;//Создание памяти
+    //под string по адресу 00000ABCX54 
+    *stringPtr = str;// Берём по адресу 00000ABCX54 значение
+    //И устанавливаем его в test по адресу str
+    return stringPtr;
+}
 
+int main()
+{
+    setlocale(LC_ALL, "russian");//Писать на русском языке разрешает
+    
+    string str = "test";
+    string* newStr = returnTest(str);
+
+    cout << newStr << endl;
+    cout << *newStr << endl;
+    cout << &*newStr << endl;
+    cout << *&*newStr << endl;
+    cout << &*&*newStr << endl;
+    cout << *&*&*newStr << endl;
+    cout << &*&*&*newStr << endl;
+    cout << *&*&*&*newStr << endl;
+    cout << &*&*&*&*newStr << endl;
+    cout << *&*&*&*&*newStr << endl;
+    cout << &*&*&*&*&*newStr << endl;
+    cout << *&*&*&*&*&*newStr << endl;
+}*/
 
 
 
