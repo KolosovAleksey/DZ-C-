@@ -1,0 +1,145 @@
+//Задача 1: Шифр атбаш: Первая буква алфавита заменяется на последнюю, вторая — на предпоследнюю и т. д..
+
+/*
+#include <iostream>
+#include <string>
+using namespace std;
+
+string atbashCipher(string text) {
+    string result = "";
+    string alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+    for (int i = 0; i < text.length(); i++) {
+        if (isalpha(text[i])) {
+            char c = tolower(text[i]);
+            if (isupper(text[i])) {
+                c = tolower(text[i]);
+            }
+
+            size_t position = alphabet.find(c);
+            if (position != string::npos) {
+                char newChar = alphabet[alphabet.length() - position - 1];
+                if (isupper(text[i])) {
+                    newChar = toupper(newChar);
+                }
+                result += newChar;
+            }
+            else {
+                result += text[i];
+            }
+        }
+        else {
+            result += text[i];
+        }
+    }
+
+    return result;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string text;
+    cout << "Введите текст для шифрования: ";
+    getline(cin, text);
+
+    string encryptedText = atbashCipher(text);
+    cout << "Зашифрованный текст: " << encryptedText << endl;
+
+    return 0;
+}
+*/
+
+//Задача 2: Замена букв цифрами. Каждой букве соответствует число по алфавитному порядку: А
+ — 1, B — 2, C — 3 и т. д.. Например, слово «TOWN» можно записать как «20 15 23 14»
+
+/*
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string word;
+    cout << "Введите слово: ";
+    cin >> word;
+
+    for (int i = 0; i < word.length(); i++) {
+        char letter = toupper(word[i]);
+        int num = letter - 'A' + 1;
+        cout << num << " ";
+    }
+
+    return 0;
+}
+*/
+
+
+//Задача 3: Написать функцию, принимающую исходную строку как аргумент и 
+возвращающую строку без дубликатов символов.
+
+/*
+#include <iostream>
+#include <string>
+using namespace std;
+
+string removeDuplicates(const string& str) {
+    string result = "";
+
+    for (char c : str) {
+        if (result.find(c) == string::npos) {
+            result += c;
+        }
+    }
+
+    return result;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input = "hello world";
+    string output = removeDuplicates(input);
+
+    cout << "Оригинальный текст: " << input << endl;
+    cout << "Текст без дубликатов: " << output << endl;
+
+    return 0;
+}
+*/
+
+
+//Задача 4: написать функцию, проверяющую, является ли строка палиндромом
+
+/*
+#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+bool isPalindrome(const string& str) {
+    string temp = str;
+    transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+    temp.erase(remove_if(temp.begin(), temp.end(), ::isspace), temp.end());
+
+    string reversed = temp;
+    reverse(reversed.begin(), reversed.end());
+
+    return temp == reversed;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string str;
+
+    cout << "Введите строку: ";
+    getline(cin, str);
+
+    if (isPalindrome(str)) {
+        cout << "Эта строка Палиндром" << endl;
+    }
+    else {
+        cout << "Эта строка не палидром" << endl;
+    }
+
+    return 0;
+}
+*/
