@@ -1,0 +1,613 @@
+//Задание:
+
+/*
+#include <iostream> 
+#include <ctime>
+#include <iomanip>
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "Russian");
+    srand(time(0));
+    int i, j;
+    int n = 0; 
+    const int size = 20; 
+    int array[size];
+
+    for (i = 0; i < size; i++) array[i] = rand() % 10; 
+
+    cout << "Исходный массив " << endl;
+    for (i = 0; i < size; i++)
+        cout << array[i] << " ";
+    cout << endl << endl;
+
+    for (j = 0; j < size; j++)
+    {
+        for (i = 0; i < size; i++)
+            if (array[j] == array[i])
+                n++;
+        cout << setw(3) << array[j] << "    " << setw(3) << n << " вхождения " << endl;
+        n = 0;
+    }
+
+    return 0;
+}
+*/
+
+
+//Задание:Пользователь вводит с клавиатуры число, необходимо
+показать на экран сумму его цифр.
+Примечание. Например, пользователь ввел число
+12345. На экране должно появиться сообщение
+о том, что сумма цифр числа 15.
+
+/*
+#include <iostream>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    long long number;
+    cout << "Введите число: ";
+    cin >> number;
+
+    int sum = 0; 
+
+    
+    while (number != 0) {
+        sum += number % 10; 
+        number /= 10; 
+    }
+
+    
+    cout << "Сумма цифр числа: " << sum << endl;
+
+    return 0;
+}
+*/
+
+
+//Задание:В первый день улитка проползла 15 см. Каждый следу
+ющий день она проползала на 2 см дальше. Определить
+какое общее расстояние проползет улитка через N дней.
+Примечание. Например, пользователь ввел чис-
+ло 4. Следовательно, улитка ползла 4 дня, поэтому
+суммарный путь составит 72 см.
+
+/*
+#include <iostream>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int N; 
+    cout << "Введите количество дней (N): ";
+    cin >> N;
+
+    int initialDistance = 15;
+    int increment = 2;
+
+    int totalDistance = 0;
+
+    for (int day = 0; day < N; day++) {
+        totalDistance += (initialDistance + day * increment);
+    }
+
+    cout << "Общее расстояние, пройденное улиткой за " << N << " дней: " << totalDistance << " см." << endl;
+
+    return 0;
+}
+*/
+
+
+//Задание: На чемодане стоит трехзначный код. Он состоит из
+цифр, которые не повторяются. Напишите программу,
+которая выведет все возможные такие комбинации
+цифр. А также определите сколько времени понадо-
+бится для открытия чемодана в худшем случае, если
+на один такой набор уходит 3 секунды.
+
+/*
+#include <iostream>
+#include <vector>
+#include <set>
+#include <chrono>
+using namespace std;
+
+void generateCombinations(int number, set<int>& combinations) {
+    int hundreds = number / 100;
+    int tens = (number / 10) % 10;
+    int units = number % 10;
+
+    if (hundreds != tens && hundreds != units && tens != units) {
+        combinations.insert(number);
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    set<int> combinations; 
+
+    for (int i = 100; i < 1000; i++) {
+        generateCombinations(i, combinations);
+    }
+
+    cout << "Все возможные трехзначные коды с неповторяющимися цифрами:\n";
+    for (int code : combinations) {
+        cout << code << endl;
+    }
+
+    int totalCombinations = combinations.size();
+    cout << "Всего комбинаций: " << totalCombinations << endl;
+
+    int timePerCombinationInSeconds = 3;
+    int totalTimeInSeconds = totalCombinations * timePerCombinationInSeconds;
+
+    int hours = totalTimeInSeconds / 3600;
+    int minutes = (totalTimeInSeconds % 3600) / 60;
+    int seconds = totalTimeInSeconds % 60;
+
+        cout << "Время, необходимое для открытия чемодана в худшем случае: "
+        << hours << " час(ов), " << minutes << " минут(ы), " << seconds << " секунд(ы)." << endl;
+
+    return 0;
+}
+*/
+
+
+//Задание:Создать программу, которая выводит на экран простые
+числа в диапазоне от 2 до 1000. (Число называется
+простым, если оно делится только на 1 и на само себя
+без остатка; причем число 1 простым не считается).
+
+/*
+#include <iostream>
+using namespace std;
+
+bool isPrime(int number) {
+    if (number <= 1) {
+        return false; 
+    }
+    for (int i = 2; i * i <= number; i++) { 
+        if (number % i == 0) {
+            return false; 
+        }
+    }
+    return true; 
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    cout << "Простые числа в диапазоне от 2 до 1000:\n";
+
+    for (int num = 2; num <= 1000; num++) {
+        if (isPrime(num)) {
+            cout << num << " "; 
+        }
+    }
+
+    cout << endl;
+    return 0;
+}
+*/
+
+
+//Задание:Разработать программу, которая выводит на экран линию из символов. Число символов, какой
+использовать символ, и какая будет линия — вертикаль-
+ная, или горизонтальная — указывает пользователь.
+
+/*
+#include <iostream>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int numSymbols;
+    char symbol;
+    char direction;
+
+    cout << "Введите количество символов: ";
+    cin >> numSymbols;
+
+    cout << "Введите символ, который хотите использовать: ";
+    cin >> symbol;
+
+    cout << "Введите направление линии (h - горизонтальная, v - вертикальная): ";
+    cin >> direction;
+
+    if (direction == 'h') {
+        for (int i = 0; i < numSymbols; i++) {
+            cout << symbol;
+        }
+        cout << endl;
+    }
+    else if (direction == 'v') {
+        for (int i = 0; i < numSymbols; i++) {
+            cout << symbol << endl; 
+        }
+    }
+    else {
+        cout << "Неверное направление. Пожалуйста, введите 'h' для горизонтальной линии или 'v' для вертикальной." << endl;
+    }
+
+    return 0;
+}
+*/
+
+
+//Задание:Хрень какая-та
+
+/*
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <string>
+using namespace std;
+
+int main() {
+	vector<int> a;
+	copy(istream_iterator<int>(cin), istream_iterator<int>(), back_inserter(a));
+	cout << "Vector: ";
+	copy(a.begin(), a.end(), ostream_iterator<int>(cout, " "));
+	cout << endl;
+	for_each(a.begin(), a.end(), [](const int a)
+		{
+			cout << string(a, '*') << endl;
+		});
+	return 0;
+}
+*/
+
+
+//Задание:Создайте программу, которая запрашивает у пользователя массив из 20 целых чисел 
+(в диапазоне от 0 до 9) и строит гистограмму частоты этих чисел с использованием символов *.
+
+/*
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    const int size = 20;
+    const int range = 10;
+
+    vector<int> numbers(size);
+    vector<int> frequency(range, 0); 
+
+    cout << "Введите 20 целых чисел в диапазоне от 0 до 9:\n";
+    for (int i = 0; i < size; i++) {
+        do {
+            cout << "Число " << (i + 1) << ": ";
+            cin >> numbers[i];
+            if (numbers[i] < 0 || numbers[i] > 9) {
+                cout << "Ошибка: пожалуйста, введите число от 0 до 9.\n";
+            }
+        } while (numbers[i] < 0 || numbers[i] > 9);
+
+        frequency[numbers[i]]++;
+    }
+
+    cout << "\nГистограмма частоты чисел от 0 до 9:\n";
+    for (int i = 0; i < range; i++) {
+        cout << i << ": ";
+        for (int j = 0; j < frequency[i]; j++) {
+            cout << "*";
+        }
+        cout << endl; 
+    }
+
+    return 0;
+}
+*/
+
+
+//Задание:Дописать функцию сортировки шейкером (Shaker sort),
+которая принимает динамический массив и его размер, сортирует и возвращает.
+
+/*
+#include <iostream>
+using namespace std;
+
+void shakerSort(int* arr, int size) {
+    int left = 0;
+    int right = size - 1;
+    bool swapped = true;
+
+    while (swapped) {
+        swapped = false;
+
+        for (int i = left; i < right; i++) {
+            if (arr[i] > arr[i + 1]) {
+                swap(arr[i], arr[i + 1]);
+                swapped = true;
+            }
+        }
+
+        if (!swapped)
+            break;
+
+        right--;
+
+        swapped = false;
+
+        for (int i = right; i > left; i--) {
+            if (arr[i] < arr[i - 1]) {
+                swap(arr[i], arr[i - 1]);
+                swapped = true;
+            }
+        }
+
+        left++;
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    const int SIZE = 10;
+    int mas[SIZE]{ 2, 1, 4, 5, 6, 4, 8, 4, 7, 9 };
+
+    cout << "Массив до сортировки:\n";
+    for (int i = 0; i < SIZE; ++i) {
+        cout << mas[i] << " ";
+    }
+    cout << endl;
+
+    shakerSort(mas, SIZE);
+
+    cout << "Массив после сортировки:\n";
+    for (int i = 0; i < SIZE; ++i) {
+        cout << mas[i] << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+*/
+
+
+//Задание: написать функцию, которая транспонирует динамическую матрицу. Транспонирование - короче когда строки меняются со столбцами в матрице.
+
+/*
+#include <iostream>
+using namespace std;
+
+int** transponMatrix(int** matrix, int size_X, int size_Y) {
+    int** transposed = new int* [size_Y];
+    for (int i = 0; i < size_Y; i++) {
+        transposed[i] = new int[size_X]; 
+    }
+
+    for (int i = 0; i < size_X; i++) {
+        for (int j = 0; j < size_Y; j++) {
+            transposed[j][i] = matrix[i][j]; 
+        }
+    }
+
+    return transposed;
+}
+
+void printMatrix(int** matrix, int size_X, int size_Y) {
+    for (int i = 0; i < size_X; i++) {
+        for (int j = 0; j < size_Y; j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+int** getRandomMatrix(int size_X, int size_Y) {
+    int** matrix = new int* [size_X];
+
+    for (int i = 0; i < size_X; i++) {
+        matrix[i] = new int[size_Y];
+
+        for (int j = 0; j < size_Y; j++) {
+            matrix[i][j] = rand() % 9 + 1;
+        }
+    }
+
+    return matrix;
+}
+
+void freeMatrix(int** matrix, int size_X) {
+    for (int i = 0; i < size_X; i++) {
+        delete[] matrix[i];
+    }
+    delete[] matrix;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int size_X = 5;
+    int size_Y = 5;
+
+    int** matrix = getRandomMatrix(size_X, size_Y);
+
+    cout << "Исходная матрица:" << endl;
+    printMatrix(matrix, size_X, size_Y);
+
+    int** transposedMatrix = transponMatrix(matrix, size_X, size_Y);
+
+    cout << "Транспонированная матрица:" << endl;
+    printMatrix(transposedMatrix, size_Y, size_X);
+
+    freeMatrix(matrix, size_X);
+    freeMatrix(transposedMatrix, size_Y);
+
+    return 0;
+}
+*/
+
+
+//Задание:Треугольником Паскаля
+
+/*
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void printPascalsTriangle(int n) {
+    vector<vector<int>> triangle(n);
+
+    for (int i = 0; i < n; i++) {
+        triangle[i].resize(i + 1);
+
+        triangle[i][0] = 1;
+        triangle[i][i] = 1;
+
+        for (int j = 1; j < i; j++) {
+            triangle[i][j] = triangle[i - 1][j - 1] + triangle[i - 1][j];
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            cout << " ";
+        }
+
+        for (int j = 0; j <= i; j++) {
+            cout << triangle[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n;
+
+    cout << "Введите натуральное число n: ";
+    cin >> n;
+
+    if (n <= 0) {
+        cout << "Число должно быть натуральным." << endl;
+        return 1;
+    }
+
+    printPascalsTriangle(n);
+
+    return 0;
+}
+*/
+
+
+//Задание:Написать функцию, вычисляющую n-ое число Фибоначчи без использования циклов.
+
+/*
+#include <iostream>
+using namespace std;
+
+int fibonacci(int n) {
+    if (n <= 0) {
+        throw invalid_argument("n должно быть положительным целым числом");
+    }
+    if (n == 1 || n == 2) {
+        return 1; 
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n;
+
+    cout << "Введите номер числа Фибоначчи (n): ";
+    cin >> n;
+
+    try {
+        int result = fibonacci(n);
+        cout << "Число Фибоначчи с номером " << n << " равно " << result << endl;
+    }
+    catch (const invalid_argument& e) {
+        cerr << e.what() << endl;
+    }
+
+    return 0;
+}
+*/
+
+
+//Задание:Написать функцию возведения в степень n без использования циклов.
+
+/*
+#include <iostream>
+using namespace std;
+
+double power(double base, int exponent) {
+    if (exponent == 0) {
+        return 1;
+    }
+    else if (exponent < 0) {
+        return 1 / power(base, -exponent); 
+    }
+    else {
+        return base * power(base, exponent - 1);
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    double base;
+    int exponent;
+
+    cout << "Введите число (основание): ";
+    cin >> base;
+    cout << "Введите степень: ";
+    cin >> exponent;
+
+    double result = power(base, exponent);
+    cout << base << " в степени " << exponent << " равно " << result << endl;
+
+    return 0;
+}
+*/
+
+
+//Задание:Показывает входит ли число в определённый радиус или нет
+
+/*
+#include <iostream>
+#include "math.h"
+using namespace std;
+
+int main()
+{ 
+    setlocale(LC_ALL, "russian");
+    int x, y, z;
+    cin >> x;
+    cin >> y;
+    double x0 = x, y0 = y;
+    x = x * x;
+    y = y * y;
+    
+    for (int i = 0; i < 2; i++) {
+        switch (i) {
+        case 0:
+            x = -2.5;
+            y = -0.1;
+            break;
+
+        case 1:
+            x = -1.5;
+            y = 0.1;
+            break;
+        }
+    }
+
+    if ((y0 >= -0.5 * x0 - 1) && (y0 <= 0.5 * x0 + 1) && (x0 < 0))
+        cout << "Входит" << endl;
+    else
+        cout << "Не входит" << endl;
+    return 0;
+}
+*/
+
+
+//Задание:
+
+
+
+//Задание:
