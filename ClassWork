@@ -133,9 +133,341 @@ int main()
     return 0;
 }
 */
+//Какое-то задание
+/*
+#include <iostream>
+#include <windows.h>
+using namespace std;
 
+string* ReverseString(string& str)
+{
+    string newStr = "";
 
+    for (int i = str.size() - 1;i >= 0; i--)
+    {
+        newStr += str[i];
+    }
+    return &newStr;
+}
 
+bool isContains(int* arr, int sizeArr, int elem)
+{
+    for (int i = 0;i < sizeArr;i++)
+    {
+        if (arr[i] == elem)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    
+    int size = 10;
+
+    int* arr = new int[size] {1, 2, 3, 4, 1, 2, 3, 5, 6, 7};
+    int* newArr = new int[size];
+
+    int j = 0;
+
+    for (int i = 0; i < size; i++)
+    {
+        if (isContains(newArr, 10, arr[i]))
+        {
+            continue;
+        }
+        else
+        {
+            newArr[j] = arr[i];
+            j++;
+        }
+    }
+
+    int* resultArr = new int[j];
+
+    for (int i = 0;i < j;i++)
+    {
+        resultArr[i] = newArr[i];
+    }
+
+    for (int i = 0;i < j; i++)
+    {
+        cout << resultArr[i];
+    }
+}
+*/
+// Тоже какое-то задание
+/*
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+int main() {
+    string strMain = "test string in my string";
+    string subString = "string in";
+
+    int j = 0;
+    bool flag = false;
+
+    for (int i = 0; i < strMain.size(); i++)
+    {
+        if (strMain[i] == subString[j])
+        {
+            j++;
+            if (j == subString.size())
+            {
+                cout << "Substring was found";
+                break;
+            }
+        }
+        else
+        {
+            j = 0;
+            continue;
+        }
+
+    }
+}
+*/
+//Задание:Вывод памяти
+/*
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+string* returnTest(string& str)
+{
+    string* stringPtr = new string;//Создание памяти
+    //под string по адресу 00000ABCX54 
+    *stringPtr = str;// Берём по адресу 00000ABCX54 значение
+    //И устанавливаем его в test по адресу str
+    return stringPtr;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "russian");//Писать на русском языке разрешает
+    
+    string str = "test";
+    string* newStr = returnTest(str);
+
+    cout << newStr << endl;
+    cout << *newStr << endl;
+    cout << &*newStr << endl;
+    cout << *&*newStr << endl;
+    cout << &*&*newStr << endl;
+    cout << *&*&*newStr << endl;
+    cout << &*&*&*newStr << endl;
+    cout << *&*&*&*newStr << endl;
+    cout << &*&*&*&*newStr << endl;
+    cout << *&*&*&*&*newStr << endl;
+    cout << &*&*&*&*&*newStr << endl;
+    cout << *&*&*&*&*&*newStr << endl;
+}
+*/
+//Задание:Вводим массив и в конце выводит цифры которые повторялись
+/*
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL,"russian");
+    int n;
+    cout << "Введите размер массива: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    
+    cout << "Введите элементы массива: ";
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    unordered_map<int, int> frequency;
+
+    for (int i = 0; i < n; i++) {
+        frequency[arr[i]]++;
+    }
+
+    cout << "Повторяющиеся элементы: ";
+    bool found = false;
+    for (const auto &pair : frequency) {
+        if (pair.second > 1) {
+            cout << pair.first << " ";
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "Нет повторяющихся элементов.";
+    }
+
+    cout << endl;
+    return 0;
+}
+*/
+//Задание:Выводит матрицу
+/*
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n, m;
+
+    cout << "Введите количество строк (n): ";
+    cin >> n;
+    cout << "Введите количество столбцов (m): ";
+    cin >> m;
+
+    
+    vector<vector<double>> matrix(n, vector<double>(m));
+
+    
+    cout << "Введите элементы матрицы:\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> matrix[i][j];
+        }
+    }
+
+    double max_of_mins = numeric_limits<double>::lowest(); 
+    int max_row_index = -1;
+    int max_col_index = -1;
+
+    
+    for (int i = 0; i < n; i++) {
+        double min_in_row = numeric_limits<double>::max();
+        int min_index = -1;
+
+        for (int j = 0; j < m; j++) {
+            if (matrix[i][j] < min_in_row) {
+                min_in_row = matrix[i][j];
+                min_index = j; 
+            }
+        }
+
+        if (min_in_row > max_of_mins) {
+            max_of_mins = min_in_row;
+            max_row_index = i;
+            max_col_index = min_index;
+        }
+    }
+
+    cout << "Максимальный из минимальных элементов: " << max_of_mins << endl;
+    cout << "Индексы элемента: (" << max_row_index << ", " << max_col_index << ")" << endl;
+
+    return 0;
+}
+*/
+//Задание:Вытворяет какие-то вещи с матрицей возможно все символы в нули
+/*
+#include <iostream>
+#include <vector>
+using namespace std;
+
+bool allZeros(const vector<int>& row) {
+    for (int num : row) {
+        if (num != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool allSame(const vector<int>& row) {
+    for (size_t i = 1; i < row.size(); ++i) {
+        if (row[i] != row[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool allEven(const vector<int>& row) {
+    for (int num : row) {
+        if (num % 2 != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isMonotonic(const vector<int>& row) {
+    bool increasing = true;
+    bool decreasing = true;
+
+    for (size_t i = 1; i < row.size(); ++i) {
+        if (row[i] < row[i - 1]) {
+            increasing = false;
+        }
+        if (row[i] > row[i - 1]) {
+            decreasing = false;
+        }
+    }
+    return increasing || decreasing;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n;
+
+    cout << "Введите порядок матрицы (n): ";
+    cin >> n;
+
+    vector<vector<int>> matrix(n, vector<int>(n));
+
+    cout << "Введите элементы матрицы:\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> matrix[i][j];
+        }
+    }
+
+    cout << "Номера строк, где:\n";
+
+    cout << "a) Все элементы равны нулю: ";
+    for (int i = 0; i < n; i++) {
+        if (allZeros(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    cout << "b) Элементы одинаковы: ";
+    for (int i = 0; i < n; i++) {
+        if (allSame(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    cout << "c) Все элементы четные: ";
+    for (int i = 0; i < n; i++) {
+        if (allEven(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    cout << "d) Элементы образуют монотонную последовательность: ";
+    for (int i = 0; i < n; i++) {
+        if (isMonotonic(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    return 0;
+}
+*/
 
 
 
