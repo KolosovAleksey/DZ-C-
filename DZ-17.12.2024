@@ -1,0 +1,21 @@
+#include <iostream>
+using namespace std;
+
+string* returnTest(string& str) { //Функция returnTest принимает одну переменную типа string по ссылке.
+    string* stringPtr = new string; //Создание памяти под string по адресу 00000ABCX54                                             
+    *stringPtr = str; //Берем по адресу 00000ABCX54 значение и устанавливаем его в "test" по адресу str           
+    return stringPtr; // Возвращение памяти
+}
+
+int main() // вход в функцию main
+{
+    string str = "test"; //Вводная строка
+    string* newStr = returnTest(str);// значение newStr присваивается returnTest(str)
+
+    cout << newStr << endl;//Выводит адрес:000001E51C7F7B10
+    cout << *newStr << endl;//Выводит адрес:test
+    cout << &*newStr << endl;//Выводит адрес:000001F6A16C7970
+    cout << *&*newStr << endl;//Выводит адрес:test
+    cout << &*&*newStr << endl;//Выводит адрес:000001F6A16C7970
+    cout << *&*&*newStr << endl;//Выводит адрес:test
+}
