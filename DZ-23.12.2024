@@ -1,0 +1,74 @@
+#include <iostream>
+using namespace std;
+
+struct Rectangle {
+    double width;
+    double height;
+
+    Rectangle(double w = 0.0, double h = 0.0) : width(w), height(h) {}
+
+    void display() const {
+        cout << "Ширина: " << width << ", Высота: " << height << endl;
+    }
+
+    Rectangle operator+(const Rectangle& other) const {
+        return Rectangle(width + other.width, height + other.height);
+    }
+    Rectangle operator-(const Rectangle& other) const {
+        double newWidth = width - other.width;
+        double newHeight = height - other.height;
+        return Rectangle(newWidth < 0 ? 0 : newWidth,
+            newHeight < 0 ? 0 : newHeight);
+    }
+
+    double operator/(const Rectangle& other) const {
+        if (other.width == 0 || other.height == 0) {
+            throw invalid_argument("Деление на прямоугольник с нулевой шириной или высотой!");
+        }
+        return (width * height) / (other.width * other.height);
+    }
+
+    Rectangle operator*(double scalar) const {
+        return Rectangle(width * scalar, height * scalar);
+    }
+
+    double operator*(const Rectangle& other) const {
+        return width * height * other.width * other.height;
+    }
+
+    double area() const {
+        return width * height;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    Rectangle rect1(3.0, 4.0);
+    Rectangle rect2(2.0, 5.0);
+
+    cout << "Прямоугольник 1: ";
+    rect1.display();
+    cout << "Прямоугольник 2: ";
+    rect2.display();
+
+    Rectangle rectSum = rect1 + rect2;
+    cout << "Сумма прямоугольников: ";
+    rectSum.display();
+
+    Rectangle rectDiff = rect1 - rect2;  
+    cout << "Разность прямоугольников: ";
+    rectDiff.display();
+
+    double divisionResult = rect1 / rect2; 
+    cout << "Количество фигур (площадь): " << divisionResult << endl;
+
+    Rectangle rectScaled = rect1 * 2; 
+    cout << "Увеличенный прямоугольник (в 2 раза): ";
+    rectScaled.display();
+
+    double areaProduct = rect1 * rect2; 
+    cout << "Произведение площадей: " << areaProduct << endl;
+
+    return 0;
+}
