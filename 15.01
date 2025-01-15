@@ -1,0 +1,33 @@
+//1. Написать функцию копирования массива. В аргументы функции должны приходить копируемый массив и его размер. Функция должна возвращать указатель на новый массив того же размера, имеющий те же элементы, как и в копируемом.
+/*
+#include <iostream>
+using namespace std;
+
+int* copyArray(int* source, int size) {
+    int* newArray = new int[size];
+
+    for (int i = 0; i < size; ++i) {
+        newArray[i] = source[i];
+    }
+
+    return newArray;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    const int SIZE = 5;
+    int array[] = { 1, 2, 3, 4, 5 };
+
+    int* copiedArray = copyArray(array, SIZE);
+
+    cout << "Скопированный массив:" << endl;
+    for (int i = 0; i < SIZE; ++i) {
+        cout << copiedArray[i] << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+*/
+//2. Написать функцию удаления дубликатов из массива. В аргументы функции должны
+приходить указатель на динаминеский массив и его размер. Функция должна возвращать указатель на новый массив, не содержащий дубликатов.
