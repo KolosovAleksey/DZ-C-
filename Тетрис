@@ -4,14 +4,14 @@
 #include <string>
 #include <thread>
 #include <mutex>
+
 #include <conio.h> 
 #include <algorithm> 
 
 using namespace std;
-
 mutex mlock;
 
-int ScreenX = 120;
+int ScreenX = 120; 
 int ScreenY = 40;
 
 int score = 0;
@@ -33,10 +33,10 @@ int figure_next = 1;
 int figure_color = 4;
 int figure_next_color = 2;
 
-const char figure_glyph_a = '['; 
+const char figure_glyph_a = '[';
 const char figure_glyph_b = ']'; 
 
-int fst = figure_glyph_b == ' ' ? 0 : 1;
+int fst = figure_glyph_b == ' ' ? 0 : 1; 
 
 string clear_line = "";
 string full_line = "";
@@ -54,7 +54,17 @@ WORD colors[7] = {
     FOREGROUND_BLUE,
     FOREGROUND_RED | FOREGROUND_BLUE,
     FOREGROUND_GREEN | FOREGROUND_BLUE
-}; 
+}; //*/  
+
+/*WORD colors[7] = { // solid theme
+    0x0000,
+    BACKGROUND_RED,
+    BACKGROUND_GREEN,
+    BACKGROUND_RED | BACKGROUND_GREEN,
+    BACKGROUND_BLUE,
+    BACKGROUND_RED | BACKGROUND_BLUE,
+    BACKGROUND_GREEN | BACKGROUND_BLUE,
+}; //*/
 
 int field_colors[Y * X];
 int field_colors_clear[Y * X];
@@ -64,28 +74,28 @@ string field_clear[Y];
 
 string getFigure(int figure) {
     unordered_map <int, string> figures;
-    figures[0] = ".....@@..@@....."; 
+    figures[0] = ".....@@..@@....."; // O
 
-    figures[1] = "....@@@@........"; 
+    figures[1] = "....@@@@........"; // I
     figures[2] = "..@...@...@...@.";
 
-    figures[3] = "......@@.@@....."; 
+    figures[3] = "......@@.@@....."; // S
     figures[4] = "..@...@@...@....";
 
-    figures[5] = ".....@@...@@...."; 
+    figures[5] = ".....@@...@@...."; // Z
     figures[6] = "...@..@@..@.....";
 
-    figures[7] = ".....@@@.@......"; 
+    figures[7] = ".....@@@.@......"; // L
     figures[8] = "..@...@...@@....";
     figures[9] = "...@.@@@........";
     figures[10] = ".@@...@...@.....";
 
-    figures[11] = ".....@@@...@...."; 
+    figures[11] = ".....@@@...@...."; // J
     figures[12] = "..@@..@...@.....";
     figures[13] = ".@...@@@........";
     figures[14] = "..@...@..@@.....";
 
-    figures[15] = ".....@@@..@....."; 
+    figures[15] = ".....@@@..@....."; // T
     figures[16] = "..@...@@..@.....";
     figures[17] = "..@..@@@........";
     figures[18] = "..@..@@...@.....";
@@ -310,18 +320,18 @@ void gameLoop() {
         input = _getch();
         mlock.lock();
 
-        if (input == 27) exit(0);
+        if (input == 27) exit(0);  // esc
 
-        if (input == 115) {        
+        if (input == 115) {        // s
             checkCollision();
             figure_y++;
             ticks++;
             if (ticks % 10 == 0) score++;
         }
 
-        if (input == 97) move(-1); 
-        if (input == 100) move(1); 
-        if (input == 32) rotate(); 
+        if (input == 97) move(-1); // a
+        if (input == 100) move(1); // d
+        if (input == 32) rotate(); // space
 
         updateBoard();
         mlock.unlock();
