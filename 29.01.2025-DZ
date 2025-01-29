@@ -1,0 +1,81 @@
+#include <iostream>
+#include <vector>
+#include <random>
+#include <ctime>
+using namespace std;
+
+struct Figure {
+    char id;
+    vector<vector<int>> field;
+};
+
+vector<Figure> createFigures() {
+    Figure I = { 'I', {{0, 1, 0, 0},
+                      {0, 1, 0, 0},
+                      {0, 1, 0, 0},
+                      {0, 1, 0, 0}} };
+
+    Figure J = { 'J', {{0, 0, 0},
+                      {2, 2, 2},
+                      {0, 0, 2}} };
+
+    Figure L = { 'L', {{0, 3, 0},
+                      {0, 3, 0},
+                      {0, 3, 3}} };
+
+    Figure O = { 'O', {{4, 4},
+                      {4, 4}} };
+
+    Figure S = { 'S', {{0, 5, 5},
+                      {5, 5, 0},
+                      {0, 0, 0}} };
+
+    Figure T = { 'T', {{6, 6, 6},
+                      {0, 6, 0},
+                      {0, 0, 0}} };
+
+    Figure Z = { 'Z', {{7, 7, 0},
+                      {0, 7, 7},
+                      {0, 0, 0}} };
+
+    return { I, J, L, O, S, T, Z };
+}
+
+vector<Figure> generateRandomFigures(int count) {
+    mt19937 rng(time(nullptr)); 
+    uniform_int_distribution<> dist(0, 6);
+
+    vector<Figure> figures = createFigures();
+    vector<Figure> randomFigures; 
+
+    for (int i = 0; i < count; ++i) {
+        int index = dist(rng); 
+        randomFigures.push_back(figures[index]); 
+    }
+
+    return randomFigures;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    const int COUNT = 10; 
+    auto randomFigures = generateRandomFigures(COUNT);
+
+    for (const auto& figure : randomFigures) {
+        cout << "Фигура: " << figure.id << "\n";
+
+        for (const auto& row : figure.field) {
+            for (int cell : row) {
+                if (cell == 0)
+                    cout << ". ";
+                else
+                    cout << cell << " ";
+            }
+            cout << "\n";
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
