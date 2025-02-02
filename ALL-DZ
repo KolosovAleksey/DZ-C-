@@ -606,8 +606,973 @@ int main()
 */
 
 
+/*
+//Задание:1. Написать функцию копирования массива. В аргументы функции должны приходить копируемый
+массив и его размер. Функция должна возвращать указатель на новый массив того же размера, имеющий те
+же элементы, как и в копируемом.
+
+/*
+#include <iostream>
+using namespace std;
+
+int* copyArray(int* source, int size) {
+    int* newArray = new int[size];
+
+    for (int i = 0; i < size; ++i) {
+        newArray[i] = source[i];
+    }
+
+    return newArray;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    const int SIZE = 5;
+    int array[] = { 1, 2, 3, 4, 5 };
+
+    int* copiedArray = copyArray(array, SIZE);
+
+    cout << "Скопированный массив:" << endl;
+    for (int i = 0; i < SIZE; ++i) {
+        cout << copiedArray[i] << " ";
+    }
+    cout << endl;
+
+    return 0;
+}
+*/
+
+
+/*
+//Задание:Не знаю 
+
+#include <iostream>
+#include <vector>
+#include <random>
+#include <ctime>
+using namespace std;
+
+struct Figure {
+    char id;
+    vector<vector<int>> field;
+};
+
+vector<Figure> createFigures() {
+    Figure I = { 'I', {{0, 1, 0, 0},
+                      {0, 1, 0, 0},
+                      {0, 1, 0, 0},
+                      {0, 1, 0, 0}} };
+
+    Figure J = { 'J', {{0, 0, 0},
+                      {2, 2, 2},
+                      {0, 0, 2}} };
+
+    Figure L = { 'L', {{0, 3, 0},
+                      {0, 3, 0},
+                      {0, 3, 3}} };
+
+    Figure O = { 'O', {{4, 4},
+                      {4, 4}} };
+
+    Figure S = { 'S', {{0, 5, 5},
+                      {5, 5, 0},
+                      {0, 0, 0}} };
+
+    Figure T = { 'T', {{6, 6, 6},
+                      {0, 6, 0},
+                      {0, 0, 0}} };
+
+    Figure Z = { 'Z', {{7, 7, 0},
+                      {0, 7, 7},
+                      {0, 0, 0}} };
+
+    return { I, J, L, O, S, T, Z };
+}
+
+vector<Figure> generateRandomFigures(int count) {
+    mt19937 rng(time(nullptr)); 
+    uniform_int_distribution<> dist(0, 6);
+
+    vector<Figure> figures = createFigures();
+    vector<Figure> randomFigures; 
+
+    for (int i = 0; i < count; ++i) {
+        int index = dist(rng); 
+        randomFigures.push_back(figures[index]); 
+    }
+
+    return randomFigures;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    const int COUNT = 10; 
+    auto randomFigures = generateRandomFigures(COUNT);
+
+    for (const auto& figure : randomFigures) {
+        cout << "Фигура: " << figure.id << "\n";
+
+        for (const auto& row : figure.field) {
+            for (int cell : row) {
+                if (cell == 0)
+                    cout << ". ";
+                else
+                    cout << cell << " ";
+            }
+            cout << "\n";
+        }
+        cout << "\n";
+    }
+
+    return 0;
+}
+*/
+
+/*
+//Задание:Не знаю
+
+#include <iostream>
+using namespace std;
+
+double sumMatrix(int rows, int cols, double** matrix) {
+    double totalSum = 0.0;
+
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            totalSum += matrix[i][j];
+        }
+    }
+
+    return totalSum;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    int rows, cols;
+    cout << "Введите количество строк и столбцов матрицы: ";
+    cin >> rows >> cols;
+
+    double** matrix = new double* [rows];
+    for (int i = 0; i < rows; ++i) {
+        matrix[i] = new double[cols];
+    }
+
+    cout << "Введите элементы матрицы:" << endl;
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            cin >> matrix[i][j];
+        }
+    }
+
+    double result = sumMatrix(rows, cols, matrix);
+
+    for (int i = 0; i < rows; ++i) {
+        delete[] matrix[i];
+    }
+    delete[] matrix;
+
+    cout << "Сумма элементов матрицы: " << result << endl;
+
+    return 0;
+}
+*/
+
+
+/*
+//Задание:Меняет все гласные на знак _
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+string replaceVowels(string str) {
+    for (char& ch : str) { 
+        if (ch == 'a' || ch == 'e' || ch == 'i' || ch == 'o' || ch == 'u' ||
+            ch == 'A' || ch == 'E' || ch == 'I' || ch == 'O' || ch == 'U') {
+            ch = '_';
+        }
+    }
+    return str; 
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input;
+    cout << "Введите строку: ";
+    getline(cin, input); 
+    string output = replaceVowels(input); 
+    cout << "Результат: " << output << endl; 
+    return 0;
+}
+*/
+
+
+/*
+//Задание:Преобразует строку в нижний регистр(Все заглавные буквы в обычные)
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+string toLowerCase(const string& str) {
+    string lowerStr; 
+    for (char ch : str) { 
+        lowerStr += tolower(ch);
+    }
+    return lowerStr;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input;
+    cout << "Введите строку: ";
+    getline(cin, input);
+    string output = toLowerCase(input);
+    cout << "Результат: " << output << endl;
+    return 0;
+}
+*/
+
+
+/*
+//Задание:Меняет строку в верхний регистр(Все обычные буквы в заглавные)
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+string toUpperCase(const string& str) {
+    string upperStr; 
+    for (char ch : str) { 
+        upperStr += toupper(ch);
+    }
+    return upperStr;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input;
+    cout << "Введите строку: ";
+    getline(cin, input); 
+    string output = toUpperCase(input); 
+    cout << "Результат: " << output << endl; 
+    return 0;
+}
+*/
+
+//Задача 1: Шифр атбаш: Первая буква алфавита заменяется на последнюю, вторая — на предпоследнюю и т. д..
+
+/*
+#include <iostream>
+#include <string>
+using namespace std;
+
+string atbashCipher(string text) {
+    string result = "";
+    string alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+    for (int i = 0; i < text.length(); i++) {
+        if (isalpha(text[i])) {
+            char c = tolower(text[i]);
+            if (isupper(text[i])) {
+                c = tolower(text[i]);
+            }
+
+            size_t position = alphabet.find(c);
+            if (position != string::npos) {
+                char newChar = alphabet[alphabet.length() - position - 1];
+                if (isupper(text[i])) {
+                    newChar = toupper(newChar);
+                }
+                result += newChar;
+            }
+            else {
+                result += text[i];
+            }
+        }
+        else {
+            result += text[i];
+        }
+    }
+
+    return result;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string text;
+    cout << "Введите текст для шифрования: ";
+    getline(cin, text);
+
+    string encryptedText = atbashCipher(text);
+    cout << "Зашифрованный текст: " << encryptedText << endl;
+
+    return 0;
+}
+*/
+
+//Задача 2: Замена букв цифрами. Каждой букве соответствует число по алфавитному порядку: А
+ — 1, B — 2, C — 3 и т. д.. Например, слово «TOWN» можно записать как «20 15 23 14»
+
+/*
+#include <iostream>
+#include <string>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string word;
+    cout << "Введите слово: ";
+    cin >> word;
+
+    for (int i = 0; i < word.length(); i++) {
+        char letter = toupper(word[i]);
+        int num = letter - 'A' + 1;
+        cout << num << " ";
+    }
+
+    return 0;
+}
+*/
+
+
+//Задача 3: Написать функцию, принимающую исходную строку как аргумент и 
+возвращающую строку без дубликатов символов.
+
+/*
+#include <iostream>
+#include <string>
+using namespace std;
+
+string removeDuplicates(const string& str) {
+    string result = "";
+
+    for (char c : str) {
+        if (result.find(c) == string::npos) {
+            result += c;
+        }
+    }
+
+    return result;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string input = "hello world";
+    string output = removeDuplicates(input);
+
+    cout << "Оригинальный текст: " << input << endl;
+    cout << "Текст без дубликатов: " << output << endl;
+
+    return 0;
+}
+*/
+
+
+//Задача 4: написать функцию, проверяющую, является ли строка палиндромом
+
+/*
+#include <iostream>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+bool isPalindrome(const string& str) {
+    string temp = str;
+    transform(temp.begin(), temp.end(), temp.begin(), ::tolower);
+    temp.erase(remove_if(temp.begin(), temp.end(), ::isspace), temp.end());
+
+    string reversed = temp;
+    reverse(reversed.begin(), reversed.end());
+
+    return temp == reversed;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    string str;
+
+    cout << "Введите строку: ";
+    getline(cin, str);
+
+    if (isPalindrome(str)) {
+        cout << "Эта строка Палиндром" << endl;
+    }
+    else {
+        cout << "Эта строка не палидром" << endl;
+    }
+
+    return 0;
+}
+*/
+
+//1-Возврат массива чётных элементов: 
+// Напишите функцию, которая принимает указатель на массив целых чисел
+// и его размер, и возвращает указатель на новый массив,
+// содержащий только четные элементы исходного массива.
+
+/*
+#include <iostream>
+using namespace std;
+
+int* getEvenElements(const int* arr, int size, int& newSize) {
+    newSize = 0; 
+    for (int i = 0; i < size; i++) {
+        if (arr[i] % 2 == 0) {
+            newSize++;
+        }
+    }
+
+    if (newSize == 0) {
+        return nullptr;
+    }
+
+    int* evenArr = new int[newSize];
+    int index = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (arr[i] % 2 == 0) {
+            evenArr[index] = arr[i];
+            index++;
+        }
+    }
+
+    return evenArr;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int arr[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int size = sizeof(arr) / sizeof(arr[0]);
+    int newSize;
+
+    int* evenElements = getEvenElements(arr, size, newSize);
+
+    if (evenElements != nullptr) {
+        cout << "Четные элементы: ";
+        for (int i = 0; i < newSize; i++) {
+            cout << evenElements[i] << " ";
+        }
+        cout << endl;
+
+        delete[] evenElements;
+    }
+    else {
+        cout << "Нет чётных элементов." << endl;
+    }
+
+    return 0;
+}
+*/
+
+
+//2-Минимальный и максимальный элемент массива :
+//Напишите две функции, которые принимают массив чисел
+//и его размер.Первая функция должна вернуть максимальный 
+//элемент, вторая - минимальный.
+
+/*
+#include <iostream>
+using namespace std;
+
+int findMax(const int* arr, int size) {
+    int maxElement = arr[0];
+
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > maxElement) {
+            maxElement = arr[i];
+        }
+    }
+
+    return maxElement;
+}
+
+int findMin(const int* arr, int size) {
+    int minElement = arr[0];
+
+    for (int i = 1; i < size; i++) {
+        if (arr[i] < minElement) {
+            minElement = arr[i]; 
+        }
+    }
+
+    return minElement;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int arr[] = { 3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5 };
+    int size = sizeof(arr) / sizeof(arr[0]);
+
+    int maxElement = findMax(arr, size);
+    int minElement = findMin(arr, size);
+
+    cout << "Максимальный элемент: " << maxElement << endl;
+    cout << "Минимальный элемент: " << minElement << endl;
+
+    return 0;
+}
+*/
+
+//3-Количество слов в строке :
+//Напишите функцию, которая принимает указатель на строку
+//и возвращает количество слов в строке.Слова разделены пробелами.
+
+/*
+#include <iostream>
+using namespace std;
+
+int countWords(const char* str) {
+    int count = 0;            
+    bool inWord = false;      
+
+    for (int i = 0; i < strlen(str); i++) {
+        if (!isspace(str[i])) {
+            if (!inWord) {
+                count++;
+                inWord = true; 
+            }
+        }
+        else {
+            inWord = false; 
+        }
+    }
+
+    return count; 
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    const char* text = "   Привет   мир! Это   тестовая строка.  ";
+
+    int wordCount = countWords(text);
+
+    cout << "Количество слов в строке: " << wordCount << endl;
+
+    return 0;
+}
+*/
+
+/*
+//Задание:Незнаю
+
+#include <iostream>
+using namespace std;
+
+string* returnTest(string& str) { //Функция returnTest принимает одну переменную типа string по ссылке.
+    string* stringPtr = new string; //Создание памяти под string по адресу 00000ABCX54                                             
+    *stringPtr = str; //Берем по адресу 00000ABCX54 значение и устанавливаем его в "test" по адресу str           
+    return stringPtr; // Возвращение памяти
+}
+
+int main() // вход в функцию main
+{
+    string str = "test"; //Вводная строка
+    string* newStr = returnTest(str);// значение newStr присваивается returnTest(str)
+
+    cout << newStr << endl;//Выводит адрес:000001E51C7F7B10
+    cout << *newStr << endl;//Выводит адрес:test
+    cout << &*newStr << endl;//Выводит адрес:000001F6A16C7970
+    cout << *&*newStr << endl;//Выводит адрес:test
+    cout << &*&*newStr << endl;//Выводит адрес:000001F6A16C7970
+    cout << *&*&*newStr << endl;//Выводит адрес:test
+}
+*/
+
+
+/*
+//Задание:Незнаю
+
+#include <iostream>
+using namespace std;
+
+struct Rectangle {
+    double width;
+    double height;
+
+    Rectangle(double w = 0.0, double h = 0.0) : width(w), height(h) {}
+
+    void display() const {
+        cout << "Ширина: " << width << ", Высота: " << height << endl;
+    }
+
+    Rectangle operator+(const Rectangle& other) const {
+        return Rectangle(width + other.width, height + other.height);
+    }
+    Rectangle operator-(const Rectangle& other) const {
+        double newWidth = width - other.width;
+        double newHeight = height - other.height;
+        return Rectangle(newWidth < 0 ? 0 : newWidth,
+            newHeight < 0 ? 0 : newHeight);
+    }
+
+    double operator/(const Rectangle& other) const {
+        if (other.width == 0 || other.height == 0) {
+            throw invalid_argument("Деление на прямоугольник с нулевой шириной или высотой!");
+        }
+        return (width * height) / (other.width * other.height);
+    }
+
+    Rectangle operator*(double scalar) const {
+        return Rectangle(width * scalar, height * scalar);
+    }
+
+    double operator*(const Rectangle& other) const {
+        return width * height * other.width * other.height;
+    }
+
+    double area() const {
+        return width * height;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    Rectangle rect1(3.0, 4.0);
+    Rectangle rect2(2.0, 5.0);
+
+    cout << "Прямоугольник 1: ";
+    rect1.display();
+    cout << "Прямоугольник 2: ";
+    rect2.display();
+
+    Rectangle rectSum = rect1 + rect2;
+    cout << "Сумма прямоугольников: ";
+    rectSum.display();
+
+    Rectangle rectDiff = rect1 - rect2;  
+    cout << "Разность прямоугольников: ";
+    rectDiff.display();
+
+    double divisionResult = rect1 / rect2; 
+    cout << "Количество фигур (площадь): " << divisionResult << endl;
+
+    Rectangle rectScaled = rect1 * 2; 
+    cout << "Увеличенный прямоугольник (в 2 раза): ";
+    rectScaled.display();
+
+    double areaProduct = rect1 * rect2; 
+    cout << "Произведение площадей: " << areaProduct << endl;
+
+    return 0;
+}
+*/
+
+//1. Возврат массива чётных элементов: 
+//Напишите функцию, которая принимает указатель
+//на массив целых чисел и его размер, и возвращает 
+//указатель на новый массив, содержащий только четные 
+//элементы исходного массива. 
+
+/*
+#include <iostream>
+using namespace std;
+
+int* getEvenElements(const int* arr, int size, int& newSize) {
+    newSize = 0;
+    for (int i = 0; i < size; i++) {
+        if (arr[i] % 2 == 0) {
+            newSize++;
+        }
+    }
+
+    int* evenArr = new int[newSize];
+    int index = 0;
+
+    for (int i = 0; i < size; i++) {
+        if (arr[i] % 2 == 0) {
+            evenArr[index++] = arr[i];
+        }
+    }
+
+    return evenArr;
+}
+
+void freeArray(int* arr) {
+    delete[] arr;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int arr[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    int size = sizeof(arr) / sizeof(arr[0]);
+    int newSize = 0;
+
+    int* evenArr = getEvenElements(arr, size, newSize);
+
+    cout << "Четные элементы: ";
+    for (int i = 0; i < newSize; i++) {
+        cout << evenArr[i] << " ";
+    }
+    cout << endl;
+
+    freeArray(evenArr);
+
+    return 0;
+} */
+
+//4. Сортировка: 
+//Напишите функцию, которая принимает указатель на 
+//динамический массив целых чисел и его размер, и 
+//сортирует массив по возрастанию.
+
+
+
+/*
+#include <iostream>
+#include <algorithm> 
+using namespace std;
+
+void sortArray(int* arr, int size) {
+    sort(arr, arr + size); 
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int size = 5;
+    int* arr = new int[size] {5, 2, 9, 1, 5};
+
+    cout << "Неотсортированный массив: ";
+    for (int i = 0; i < size; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+
+    sortArray(arr, size);
+
+    cout << "Отсортированный массив: ";
+    for (int i = 0; i < size; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+
+    delete[] arr;
+
+    return 0;
+}
+*/
+
+/*
+//Задание:Незнаю
+
+#include <iostream>
+#include <cstring> 
+
+using namespace std;
+
+void rotateMatrix(int n, int matrix[][n], int angle) {
+    if (angle % 90 != 0 || angle < 0 || angle > 360) {
+        throw invalid_argument("Угол должен быть кратен 90 градусам.");
+    }
+
+    angle %= 360;
+
+    if (angle == 0) {
+        return;
+    }
+
+    int newMatrix[n][n];
+
+    switch (angle) {
+    case 90:
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                newMatrix[j][n - 1 - i] = matrix[i][j];
+            }
+        }
+        break;
+
+    case 180:
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                newMatrix[n - 1 - i][n - 1 - j] = matrix[i][j];
+            }
+        }
+        break;
+
+    case 270:
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                newMatrix[n - 1 - j][i] = matrix[i][j];
+            }
+        }
+        break;
+    }
+
+    memcpy(matrix, newMatrix, sizeof(newMatrix));
+}
+
+int main() {
+    const int n = 3;
+
+    int matrix[n][n] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+
+    cout << "Исходная матрица:" << endl;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < n; ++j) {
+            cout << matrix[i][j] << ' ';
+        }
+        cout << endl;
+    }
+
+    try {
+        rotateMatrix(n, matrix, 90);
+
+        cout << "\nМатрица после поворота на 90 градусов:" << endl;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                cout << matrix[i][j] << ' ';
+            }
+            cout << endl;
+        }
+
+        rotateMatrix(n, matrix, 180);
+
+        cout << "\nМатрица после поворота на 180 градусов:" << endl;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                cout << matrix[i][j] << ' ';
+            }
+            cout << endl;
+        }
+
+        rotateMatrix(n, matrix, 270);
+
+        cout << "\nМатрица после поворота на 270 градусов:" << endl;
+        for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n; ++j) {
+                cout << matrix[i][j] << ' ';
+            }
+            cout << endl;
+        }
+    }
+    catch (const exception& e) {
+        cerr << "Ошибка: " << e.what() << endl;
+    }
+
+    return 0;
+}
+*/
+
+/*
+//Задание:Незнаю
+
+#include <iostream>
+using namespace std;
+
+int main() {
+setlocale(LC_ALL,"russian");
+    char symbol;
+    
+    cout << "Введите символ: ";
+    cin >> symbol;
+
+    if ('0' <= symbol && symbol <= '9') {
+        cout << "Это цифра!" << endl;
+    } else if (symbol == '&' || symbol == '#' || symbol == '<') {
+        cout << "Это спецсимвол!" << endl;
+    } else {
+        cout << "Непредусмотренный вариант!" << endl;
+    }
+
+    return 0;
+}
+*/
+
+/*
+//Задание: Незнаю
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+   vector<pair<int, int>> findSaddlePoints(const vector<vector<int>>& matrix) {
+    if (matrix.empty() || matrix[0].empty()) return {};
+
+    const size_t rows = matrix.size();
+    const size_t cols = matrix[0].size();
+
+    vector<int> rowMins(rows);
+
+    for (size_t i = 0; i < rows; ++i) {
+        rowMins[i] = *min_element(matrix[i].begin(), matrix[i].end());
+    }
+
+    vector<pair<int, int>> saddlePoints;
+
+    for (size_t i = 0; i < rows; ++i) {
+        for (size_t j = 0; j < cols; ++j) {
+            if (matrix[i][j] == rowMins[i]) {
+                bool isMaxInCol = true;
+
+                for (size_t k = 0; k < rows; ++k) {
+                    if (matrix[k][j] > matrix[i][j]) {
+                        isMaxInCol = false;
+                        break;
+                    }
+                }
+
+                if (isMaxInCol) {
+                    saddlePoints.emplace_back(i, j);
+                }
+            }
+        }
+    }
+
+    return saddlePoints;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    vector<vector<int>> matrix = {
+        {9, 8, 7},
+        {5, 6, 10},
+        {11, 12, 13}
+    };
+
+    auto result = findSaddlePoints(matrix);
+
+    cout << "Седловые точки:\n";
+    for (const auto& point : result) {
+        cout << "(" << point.first + 1 << ", " << point.second + 1 << ") -> "
+            << matrix[point.first][point.second] << "\n";
+    }
+
+    return 0;
+}
+*/
+
+/*
 //Задание:
 
 
+*/
 
+/*
 //Задание:
+
+
+*/
+
+/*
+//Задание:
+
+
+*/
+
+
+
+
+
+
+
