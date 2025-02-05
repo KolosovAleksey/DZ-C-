@@ -1,0 +1,107 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Distance {
+private:
+    int kilometers;  
+    int meters;   
+
+public:
+    Distance() : kilometers(0), meters(0) {}
+
+    Distance(int km, int m) : kilometers(km), meters(m) {
+        normalize();
+    }
+
+    Distance operator+(const Distance& other) const {
+        return Distance(
+            kilometers + other.kilometers,
+            meters + other.meters
+        );
+    }
+
+    Distance operator-(const Distance& other) const {
+        return Distance(
+            kilometers - other.kilometers,
+            meters - other.meters
+        );
+    }
+
+    Distance operator*(int multiplier) const {
+        return Distance(
+            kilometers * multiplier,
+            meters * multiplier
+        );
+    }
+
+    Distance operator/(int divisor) const {
+        if (divisor == 0) {
+            throw "Division by zero";
+        }
+
+        int totalMeters = kilometers * 1000 + meters;
+        int resultMeters = totalMeters / divisor;
+
+        return Distance(resultMeters / 1000, resultMeters % 1000);
+    }
+
+    bool operator==(const Distance& other) const {
+        return kilometers == other.kilometers && meters == other.meters;
+    }
+
+    bool operator!=(const Distance& other) const {
+        return !(*this == other);
+    }
+
+    friend ostream& operator<<(ostream& out, const Distance& distance) {
+        out << distance.kilometers << " км " << distance.meters << " м";
+        return out;
+    }
+
+    friend istream& operator>>(istream& in, Distance& distance) {
+        in >> distance.kilometers >> distance.meters;
+        distance.normalize();
+        return in;
+    }
+
+private:
+    void normalize() {
+        kilometers += meters / 1000;
+        meters %= 1000;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    Distance d1(10, 500);
+    Distance d2(5, 700);
+
+    cout << "Расстояние1: " << d1 << endl;
+    cout << "Расстояние2: " << d2 << endl;
+
+    Distance sum = d1 + d2;
+    cout << "Сумма Растояний: " << sum << endl;
+
+    Distance difference = d1 - d2;
+    cout << "Разность Растояний: " << difference << endl;
+
+    Distance product = d1 * 3;
+    cout << "Произведение Растояний: " << product << endl;
+
+    Distance quotient = d1 / 4;
+    cout << "Деление Растояний: " << quotient << endl;
+
+    if (d1 == d2) {
+        cout << "Равны" << endl;
+    }
+    else {
+        cout << "Не равны" << endl;
+    }
+
+    return 0;
+}
+//Реализовать класс Расстояние с полями // километры и метры
+// реализовать базовый функционал для // операций +,-, *, /, ==, !=, <<, >>
+// с помощью перегрузки операторов.// Предусмотреть логичность вычислений, 
+// (метры > 1000 -> в километры)
