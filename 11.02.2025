@@ -1,0 +1,105 @@
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Socks {
+private:
+    string size; 
+    string color; 
+
+public:
+    Socks(const string& size, const string& color)
+        : size(size), color(color) {}
+
+    void display() const {
+        cout << "Носки: Размер - " << size << ", Цвет - " << color << endl;
+    }
+};
+
+class Shoes {
+private:
+    string size;
+    string brand; 
+    string color; 
+
+public:
+    Shoes(const string& size, const string& brand, const string& color)
+        : size(size), brand(brand), color(color) {}
+
+    void display() const {
+        cout << "Обувь: Размер - " << size << ", Бренд - " << brand << ", Цвет - " << color << endl;
+    }
+};
+
+class Stockings {
+private:
+    string size; 
+    string material; 
+
+public:
+    Stockings(const string& size, const string& material)
+        : size(size), material(material) {}
+
+    void display() const {
+        cout << "Чулки: Размер - " << size << ", Материал - " << material << endl;
+    }
+};
+
+class Shop {
+private:
+    vector<Socks> socks; 
+    vector<Shoes> shoes; 
+    vector<Stockings> stockings; 
+
+public:
+    void addSocks(const Socks& sock) {
+        socks.push_back(sock);
+    }
+
+    void addShoes(const Shoes& shoe) {
+        shoes.push_back(shoe);
+    }
+
+    void addStockings(const Stockings& stocking) {
+        stockings.push_back(stocking);
+    }
+
+    void displayAllProducts() const {
+        cout << "Товары в магазине:" << endl;
+
+        cout << "Носки:" << endl;
+        for (const auto& sock : socks) {
+            sock.display();
+        }
+
+        cout << "Обувь:" << endl;
+        for (const auto& shoe : shoes) {
+            shoe.display();
+        }
+
+        cout << "Чулки:" << endl;
+        for (const auto& stocking : stockings) {
+            stocking.display();
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    Shop shop;
+
+    shop.addSocks(Socks("42", "Черный"));
+    shop.addSocks(Socks("38", "Белый"));
+
+    shop.addShoes(Shoes("39", "Nike", "Красный"));
+    shop.addShoes(Shoes("37", "Adidas", "Синий"));
+
+    shop.addStockings(Stockings("M", "Хлопок"));
+    shop.addStockings(Stockings("L", "Шелк"));
+
+    shop.displayAllProducts();
+
+    return 0;
+}
