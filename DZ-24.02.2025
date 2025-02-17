@@ -1,0 +1,37 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+void checkPass() {
+    string pass;
+    bool IsExecut = false;
+
+    do {
+        try {
+            cout << "Для регистрации введите пароль состоящий минимум из 8 символов без знаков '.', ',', '/': ";
+            getline(cin, pass);
+
+            if (pass.length() < 8) {
+                throw "Пароль должен содержать минимум 8 символов";
+            }
+
+            for (char ch : pass) {
+                if (ch == '.' || ch == ',' || ch == '/') {
+                    throw "Недопустимые символы";
+                }
+            }
+            cout << "Пароль принят\n";
+            cout << "Новый пароль: " << pass << endl;
+            IsExecut = true;
+        }
+        catch (const char* error) {
+            cout << error << endl;
+        }
+    } while (!IsExecut);
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    checkPass();
+    return 0;
+}
