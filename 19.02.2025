@@ -1,0 +1,73 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+
+class Wheel {
+public:
+    int size;
+    string type;
+
+    Wheel(int s, string t) : size(s), type(t) {}
+    virtual ~Wheel() {} 
+};
+
+class Engine {
+public:
+    int power;
+    string fuelType;
+
+    Engine(int p, string ft) : power(p), fuelType(ft) {}
+    virtual ~Engine() {} 
+};
+
+class Transmission {
+public:
+    string type;
+
+    Transmission(string t) : type(t) {}
+    virtual ~Transmission() {}
+};
+
+class Suspension {
+public:
+    string type;
+
+    Suspension(string t) : type(t) {}
+    virtual ~Suspension() {}
+};
+
+
+class Car : public Wheel, public Engine, public Transmission, public Suspension {
+public:
+    string model;
+
+    Car(
+        string m,
+        int wheelSize, string wheelType,
+        int enginePower, string engineFuelType,
+        string transmissionType,
+        string suspensionType
+    ) :
+        Wheel(wheelSize, wheelType),
+        Engine(enginePower, engineFuelType),
+        Transmission(transmissionType),
+        Suspension(suspensionType),
+        model(m)
+    {}
+
+    void print() {
+        cout << "Model: " << model << "\n";
+        cout << "Wheel Size: " << size << ", Type: " << Wheel::type << "\n"; 
+        cout << "Engine Power: " << power << ", Fuel Type: " << fuelType << "\n";
+        cout << "Transmission Type: " << Transmission::type << "\n";
+        cout << "Suspension Type: " << Suspension::type << "\n";
+    }
+};
+
+int main() {
+    Car car("Toyota Corolla", 17, "Alloy", 150, "Gasoline", "Automatic", "Independent");
+    car.print();
+
+    return 0;
+}
