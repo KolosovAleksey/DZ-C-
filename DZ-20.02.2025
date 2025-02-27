@@ -1,0 +1,75 @@
+package com.example.competitionapp
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            CompetitionApp()
+        }
+    }
+}
+
+@Composable
+fun CompetitionApp() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        // Вызов функции для отображения списка участников
+        CompetitionResults(
+            participants = listOf("Иванов", "Петров", "Сидоров", "Козлов", "Смирнов")
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Вызов функции для отображения списка четных чисел
+        EvenNumbersListLazy()
+    }
+}
+
+@Composable
+fun CompetitionResults(participants: List<String>) {
+    participants.forEachIndexed { index, surname ->
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(text = "${index + 1}", modifier = Modifier.weight(1f))
+                Text(text = surname, modifier = Modifier.weight(2f))
+            }
+        }
+    }
+}
+
+@Composable
+fun EvenNumbersListLazy() {
+    val evenNumbers = remember { mutableStateListOf(*(0..198 step 2).toList().toTypedArray()) }
+
+    LazyColumn {
+        itemsIndexed(
+            items = evenNumbers,
+            key = { _, number -> number }
+        ) { index, number ->
+            Button(
+                onClick = { evenNumbers.removeAt(index) },
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(text = number.toString())
+            }
+        }
+    }
+}
