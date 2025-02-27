@@ -1,0 +1,6 @@
+fun main() {
+    for (i in 99 downTo 1 step 2) {
+        val square = i * i
+        println("$i^2 = $square")
+    }
+}
