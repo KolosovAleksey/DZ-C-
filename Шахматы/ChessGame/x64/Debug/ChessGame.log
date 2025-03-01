@@ -1,0 +1,18 @@
+﻿  ai.cpp
+  board.cpp
+  ChessGame.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\wincontypes.h(103,9): warning C4005: MOUSE_MOVED: изменение макроопределения
+  (компиляция исходного файла "ChessGame.cpp")
+      C:\Users\Lexa\Desktop\Учёба\ДЗ\Шахматы\packages\pdcurses_vc120.3.4.0.3\build\native\include\curses.h(153,9):
+      см. предыдущее определение "MOUSE_MOVED"
+  
+  game.cpp
+  interface.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\um\wincontypes.h(103,9): warning C4005: MOUSE_MOVED: изменение макроопределения
+  (компиляция исходного файла "interface.cpp")
+      C:\Users\Lexa\Desktop\Учёба\ДЗ\Шахматы\packages\pdcurses_vc120.3.4.0.3\build\native\include\curses.h(153,9):
+      см. предыдущее определение "MOUSE_MOVED"
+  
+  piece.cpp
+  Создание кода...
+  ChessGame.vcxproj -> C:\Users\Lexa\Desktop\Учёба\ДЗ\Шахматы\x64\Debug\ChessGame.exe
