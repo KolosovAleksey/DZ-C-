@@ -1,0 +1,266 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Challenge {
+protected:
+    string name;
+    int difficulty;
+
+public:
+    Challenge() : name(""), difficulty(0) {}
+    Challenge(const string& name, int difficulty) : name(name), difficulty(checkNumber(difficulty)) {}
+
+    int checkNumber(int number) {
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            throw "Ошибка: введено не число.";
+        }
+        return number;
+    }
+
+    bool operator==(const Challenge& other) const {
+        return name == other.name && difficulty == other.difficulty;
+    }
+
+    Challenge operator+(const Challenge& other) const {
+        return Challenge(name + " + " + other.name, difficulty + other.difficulty);
+    }
+
+    Challenge& operator++() {
+        ++difficulty;
+        return *this;
+    }
+
+    virtual void print() const {
+        cout << "Испытание: " << name << ", Сложность: " << difficulty << endl;
+    }
+
+    virtual ~Challenge() = default;
+};
+
+class Test : public Challenge {
+private:
+    int numberOfQuestions;
+
+public:
+    Test() : Challenge(), numberOfQuestions(0) {}
+    Test(const string& name, int difficulty, int numberOfQuestions)
+        : Challenge(name, difficulty), numberOfQuestions(checkNumber(numberOfQuestions)) {}
+
+    bool operator==(const Test& other) const {
+        return Challenge::operator==(other) && numberOfQuestions == other.numberOfQuestions;
+    }
+
+    Test operator+(const Test& other) const {
+        return Test(name + " + " + other.name, difficulty + other.difficulty, numberOfQuestions + other.numberOfQuestions);
+    }
+
+    Test& operator++() {
+        Challenge::operator++();
+        ++numberOfQuestions;
+        return *this;
+    }
+
+    void print() const override {
+        cout << "Тест: " << name << ", Сложность: " << difficulty << ", Количество вопросов: " << numberOfQuestions << endl;
+    }
+};
+
+class Exam : public Challenge {
+protected:
+    int duration;
+
+public:
+    Exam() : Challenge(), duration(0) {}
+    Exam(const string& name, int difficulty, int duration)
+        : Challenge(name, difficulty), duration(checkNumber(duration)) {}
+
+    bool operator==(const Exam& other) const {
+        return Challenge::operator==(other) && duration == other.duration;
+    }
+
+    Exam operator+(const Exam& other) const {
+        return Exam(name + " + " + other.name, difficulty + other.difficulty, duration + other.duration);
+    }
+
+    Exam& operator++() {
+        Challenge::operator++();
+        ++duration;
+        return *this;
+    }
+
+    void print() const override {
+        cout << "Экзамен: " << name << ", Сложность: " << difficulty << ", Продолжительность: " << duration << " минут." << endl;
+    }
+};
+
+class FinalExam : public Exam {
+private:
+    int minimumScore;
+
+public:
+    FinalExam() : Exam(), minimumScore(0) {}
+    FinalExam(const string& name, int difficulty, int duration, int minimumScore)
+        : Exam(name, difficulty, duration), minimumScore(checkNumber(minimumScore)) {}
+
+    bool operator==(const FinalExam& other) const {
+        return Exam::operator==(other) && minimumScore == other.minimumScore;
+    }
+
+    FinalExam operator+(const FinalExam& other) const {
+        return FinalExam(name + " + " + other.name, difficulty + other.difficulty, duration + other.duration, minimumScore + other.minimumScore);
+    }
+
+    FinalExam& operator++() {
+        Exam::operator++();
+        ++minimumScore;
+        return *this;
+    }
+
+    void print() const override {
+        cout << "Выпускной экзамен: " << name << ", Сложность: " << difficulty << ", Продолжительность: " << duration << " минут, Минимальный балл: " << minimumScore << endl;
+    }
+};
+
+void printMenu() {
+    cout << " _________________________________________\n";
+    cout << "|                                         |\n";
+    cout << "|                   МЕНЮ                  |\n";
+    cout << "|_________________________________________|\n";
+    cout << "|                                         |\n";
+    cout << "| 1. Добавить новый элемент               |\n";
+    cout << "| 2. Удалить элемент по индексу           |\n";
+    cout << "| 3. Вывод всех элементов                 |\n";
+    cout << "| 4. Сравнение двух элементов на равенство|\n";
+    cout << "| 5. Завершение работы                    |\n";
+    cout << "|_________________________________________|\n";
+    cout << "Выберите действие: ";
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    const int MAX_ELEMENTS = 100;
+    Challenge* challenges[MAX_ELEMENTS];
+    int count = 0;
+    int choice;
+
+    do {
+        printMenu();
+        cin >> choice;
+
+        try {
+            switch (choice) {
+            case 1: {
+                if (count >= MAX_ELEMENTS) {
+                    cout << "Достигнуто максимальное количество элементов.\n";
+                    break;
+                }
+
+                int type;
+                cout << "Выберите тип элемента (1 - Испытание, 2 - Тест, 3 - Экзамен, 4 - Выпускной экзамен): ";
+                cin >> type;
+
+                string name;
+                int difficulty;
+                cout << "Введите название: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Введите сложность: ";
+                cin >> difficulty;
+
+                switch (type) {
+                case 1:
+                    challenges[count++] = new Challenge(name, difficulty);
+                    break;
+                case 2: {
+                    int numberOfQuestions;
+                    cout << "Введите количество вопросов: ";
+                    cin >> numberOfQuestions;
+                    challenges[count++] = new Test(name, difficulty, numberOfQuestions);
+                    break;
+                }
+                case 3: {
+                    int duration;
+                    cout << "Введите продолжительность (в минутах): ";
+                    cin >> duration;
+                    challenges[count++] = new Exam(name, difficulty, duration);
+                    break;
+                }
+                case 4: {
+                    int duration, minimumScore;
+                    cout << "Введите продолжительность (в минутах): ";
+                    cin >> duration;
+                    cout << "Введите минимальный балл: ";
+                    cin >> minimumScore;
+                    challenges[count++] = new FinalExam(name, difficulty, duration, minimumScore);
+                    break;
+                }
+                default:
+                    cout << "Неверный тип элемента.\n";
+                    break;
+                }
+                break;
+            }
+            case 2: {
+                int index;
+                cout << "Введите индекс элемента для удаления: ";
+                cin >> index;
+                if (index >= 0 && index < count) {
+                    delete challenges[index];
+                    for (int i = index; i < count - 1; ++i) {
+                        challenges[i] = challenges[i + 1];
+                    }
+                    count--;
+                    cout << "Элемент удален.\n";
+                }
+                else {
+                    cout << "Неверный индекс.\n";
+                }
+                break;
+            }
+            case 3: {
+                for (int i = 0; i < count; ++i) {
+                    cout << "Элемент " << i << ":\n";
+                    challenges[i]->print();
+                }
+                break;
+            }
+            case 4: {
+                int index1, index2;
+                cout << "Введите индексы двух элементов для сравнения: ";
+                cin >> index1 >> index2;
+                if (index1 >= 0 && index1 < count && index2 >= 0 && index2 < count) {
+                    if (*challenges[index1] == *challenges[index2]) {
+                        cout << "Элементы равны.\n";
+                    }
+                    else {
+                        cout << "Элементы не равны.\n";
+                    }
+                }
+                else {
+                    cout << "Неверные индексы.\n";
+                }
+                break;
+            }
+            case 5:
+                cout << "Завершение работы.\n";
+                break;
+            default:
+                cout << "Неверный выбор.\n";
+                break;
+            }
+        }
+        catch (const char* error) {
+            cout << error << endl;
+        }
+    } while (choice != 5);
+
+    for (int i = 0; i < count; ++i) {
+        delete challenges[i];
+    }
+
+    return 0;
+}
