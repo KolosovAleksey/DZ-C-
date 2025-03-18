@@ -1,14 +1,13 @@
 #include <iostream>
 using namespace std;
 
-// Базовый класс для сущностей с идентификатором
 class Entity {
 protected:
     int id;
-    string createdAt; // Просто строка для хранения времени
+    string createdAt;
 
 public:
-    Entity(int id) : id(id), createdAt("2023-10-01 12:00:00") {} // Фиктивное время
+    Entity(int id) : id(id), createdAt("2023-10-01 12:00:00") {}
 
     int getId() const {
         return id;
@@ -19,7 +18,6 @@ public:
     }
 };
 
-// Класс Пользователь
 class User : public Entity {
 private:
     string name;
@@ -46,11 +44,10 @@ public:
     }
 };
 
-// Класс Лайк
 class Like : public Entity {
 private:
     User* user;
-    Entity* target;  // Может быть Post или Comment
+    Entity* target;
 
 public:
     Like(int id, User* user, Entity* target)
@@ -65,12 +62,11 @@ public:
     }
 };
 
-// Класс Комментарий
 class Comment : public Entity {
 private:
     string text;
     User* author;
-    Entity* target;  // Может быть Post или другой Comment
+    Entity* target;
 
 public:
     Comment(int id, const string& text, User* author, Entity* target)
@@ -93,13 +89,12 @@ public:
     }
 };
 
-// Класс Пост
 class Post : public Entity {
 private:
     string text;
     User* author;
-    Like* likes[10]; // Массив для хранения лайков (фиксированный размер)
-    Comment* comments[10]; // Массив для хранения комментариев (фиксированный размер)
+    Like* likes[10];
+    Comment* comments[10];
     int likeCount;
     int commentCount;
 
@@ -158,12 +153,11 @@ public:
     }
 };
 
-// Класс Сообщество
 class Community : public Entity {
 private:
     string name;
     string description;
-    User* members[100]; // Массив для хранения участников (фиксированный размер)
+    User* members[100];
     int memberCount;
 
 public:
@@ -206,7 +200,6 @@ public:
     }
 };
 
-// Класс Администратор
 class Administrator : public User {
 public:
     Administrator(int id, const string& name, const string& email)
@@ -221,38 +214,28 @@ public:
     }
 };
 
-// Пример использования
 int main() {
-    // Создаем пользователей
     User user1(1, "Alice", "alice@example.com");
     User user2(2, "Bob", "bob@example.com");
 
-    // Создаем пост
     Post post1(1, "Hello, world!", &user1);
 
-    // Добавляем лайк к посту
     Like like1(1, &user2, &post1);
     post1.addLike(&like1);
 
-    // Добавляем комментарий к посту
     Comment comment1(1, "Nice post!", &user2, &post1);
     post1.addComment(&comment1);
 
-    // Создаем сообщество
     Community community(1, "C++ Developers", "A community for C++ enthusiasts");
     community.addMember(&user1);
     community.addMember(&user2);
 
-    // Создаем администратора
     Administrator admin(3, "Admin", "admin@example.com");
 
-    // Администратор удаляет пост
     admin.deletePost(&post1);
 
-    // Администратор блокирует пользователя
     admin.banUser(&user2);
 
-    // Выводим информацию о посте
     cout << "Пост: " << post1.getText() << endl;
     cout << "Автор: " << post1.getAuthor()->getName() << endl;
     cout << "Лайков: " << post1.getLikeCount() << endl;
