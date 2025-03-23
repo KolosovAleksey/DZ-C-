@@ -1,0 +1,99 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class SmartDevice {
+private:
+    string name;
+    bool isOn;
+
+public:
+    SmartDevice(const string& deviceName) : name(deviceName), isOn(false) {}
+
+    void executeCommand(const string& command) {
+        if (command == "включить") {
+            isOn = true;
+            cout << name << " включен." << endl;
+        }
+        else if (command == "выключить") {
+            isOn = false;
+            cout << name << " выключен." << endl;
+        }
+        else {
+            cout << "Неизвестная команда для " << name << "." << endl;
+        }
+    }
+
+    bool getState() const {
+        return isOn;
+    }
+
+    string getName() const {
+        return name;
+    }
+};
+
+class SmartHome {
+private:
+    SmartDevice** devices; 
+    int capacity;
+    int size;
+
+    void resize() {
+        capacity *= 2;
+        SmartDevice** newDevices = new SmartDevice * [capacity];
+        for (int i = 0; i < size; ++i) {
+            newDevices[i] = devices[i];
+        }
+        delete[] devices;
+        devices = newDevices;
+    }
+
+public:
+    SmartHome() : capacity(2), size(0) {
+        devices = new SmartDevice * [capacity];
+    }
+
+    ~SmartHome() {
+        delete[] devices;
+    }
+
+    void addDevice(SmartDevice* device) {
+        if (size >= capacity) {
+            resize();
+        }
+        devices[size++] = device;
+    }
+
+    void executeCommandOnAllDevices(const string& command) {
+        for (int i = 0; i < size; ++i) {
+            devices[i]->executeCommand(command);
+        }
+    }
+
+    void displayDevicesState() const {
+        for (int i = 0; i < size; ++i) {
+            cout << devices[i]->getName() << " состояние: "
+                << (devices[i]->getState() ? "включен" : "выключен") << endl;
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    SmartDevice lamp("Лампа");
+    SmartDevice thermostat("Термостат");
+
+    SmartHome smartHome;
+    smartHome.addDevice(&lamp);
+    smartHome.addDevice(&thermostat);
+
+    smartHome.executeCommandOnAllDevices("включить");
+    smartHome.displayDevicesState();
+
+    smartHome.executeCommandOnAllDevices("выключить");
+    smartHome.displayDevicesState();
+
+    return 0;
+}
