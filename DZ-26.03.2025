@@ -1,0 +1,188 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Person {
+protected:
+    string name;
+    int age;
+
+public:
+    Person(const string& name, int age) : name(name), age(age) {}
+
+    virtual ~Person() {}
+
+    virtual void displayInfo() const {
+        cout << "Имя: " << name << ", Возраст: " << age;
+    }
+
+    string getName() const { return name; }
+    int getAge() const { return age; }
+};
+
+class Student : public Person {
+protected:
+    int studentId;
+    string major;
+    int semester;
+
+public:
+    Student(const string& name, int age, int studentId,
+        const string& major, int semester)
+        : Person(name, age), studentId(studentId), major(major), semester(semester) {}
+
+    void displayInfo() const override {
+        Person::displayInfo();
+        cout << ", ID студента: " << studentId
+            << ", Специальность: " << major
+            << ", Семестр: " << semester << endl;
+    }
+
+    virtual void study() {
+        cout << name << " изучает " << major << endl;
+    }
+
+    int getStudentId() const { return studentId; }
+    string getMajor() const { return major; }
+    int getSemester() const { return semester; }
+};
+
+class ExpelledStudent : public Student {
+private:
+    string reason;
+    string expulsionDate;
+
+public:
+    ExpelledStudent(const string& name, int age, int studentId,
+        const string& major, int semester,
+        const string& reason, const string& expulsionDate)
+        : Student(name, age, studentId, major, semester),
+        reason(reason), expulsionDate(expulsionDate) {}
+
+    void displayInfo() const override {
+        Student::displayInfo();
+        cout << "Статус: Отчислен, Причина: " << reason
+            << ", Дата отчисления: " << expulsionDate << endl;
+    }
+
+    void appealExpulsion() {
+        cout << name << " подает апелляцию на отчисление по причине: " << reason << endl;
+    }
+
+    string getReason() const { return reason; }
+    string getExpulsionDate() const { return expulsionDate; }
+};
+
+class Classroom {
+private:
+    string roomNumber;
+    int capacity;
+    string equipment[10];
+    int equipmentCount;
+
+public:
+    Classroom(const string& roomNumber, int capacity,
+        const string equipment[], int equipmentCount)
+        : roomNumber(roomNumber), capacity(capacity), equipmentCount(equipmentCount) {
+        for (int i = 0; i < equipmentCount; i++) {
+            this->equipment[i] = equipment[i];
+        }
+    }
+
+    void displayInfo() const {
+        cout << "Аудитория: " << roomNumber << ", Вместимость: " << capacity
+            << ", Оборудование: ";
+        for (int i = 0; i < equipmentCount; i++) {
+            cout << equipment[i] << " ";
+        }
+        cout << endl;
+    }
+
+    bool canAccommodate(int students) const {
+        return students <= capacity;
+    }
+
+    string getRoomNumber() const { return roomNumber; }
+    int getCapacity() const { return capacity; }
+};
+
+class College {
+private:
+    string name;
+    string location;
+    Student* students[100];
+    int studentCount;
+    Classroom classrooms[20];
+    int classroomCount;
+
+public:
+    College(const string& name, const string& location)
+        : name(name), location(location), studentCount(0), classroomCount(0) {}
+
+    ~College() {
+        for (int i = 0; i < studentCount; i++) {
+            delete students[i];
+        }
+    }
+
+    void addStudent(Student* student) {
+        if (studentCount < 100) {
+            students[studentCount++] = student;
+        }
+        else {
+            cout << "Достигнуто максимальное количество студентов!" << endl;
+        }
+    }
+
+    void addClassroom(const Classroom& classroom) {
+        if (classroomCount < 20) {
+            classrooms[classroomCount++] = classroom;
+        }
+        else {
+            cout << "Достигнуто максимальное количество аудиторий!" << endl;
+        }
+    }
+
+    void displayAllStudents() const {
+        cout << "Студенты колледжа " << name << ":" << endl;
+        for (int i = 0; i < studentCount; i++) {
+            students[i]->displayInfo();
+        }
+    }
+
+    void displayAllClassrooms() const {
+        cout << "Аудитории колледжа " << name << ":" << endl;
+        for (int i = 0; i < classroomCount; i++) {
+            classrooms[i].displayInfo();
+        }
+    }
+
+    void expelStudent(int studentId, const string& reason, const string& date) {
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i]->getStudentId() == studentId) {
+                Student* student = students[i];
+                ExpelledStudent* expelled = new ExpelledStudent(
+                    student->getName(), student->getAge(), student->getStudentId(),
+                    student->getMajor(), student->getSemester(), reason, date);
+
+                delete students[i];
+                students[i] = expelled;
+                cout << student->getName() << " был отчислен." << endl;
+                return;
+            }
+        }
+        cout << "Студент с ID " << studentId << " не найден." << endl;
+    }
+
+    string getName() const { return name; }
+    string getLocation() const { return location; }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    College college("Технический Колледж", "ул. Университетская, 123");
+    college.addStudent(new Student("Сотников Алексей", 21, 1001, "РПО-1124", 3));
+    college.expelStudent(1001, "Академическая неуспеваемость", "2025-03-26");
+    return 0;
+}
