@@ -1,0 +1,250 @@
+#include <iostream>
+#include <string>
+#include <map>
+using namespace std;
+
+bool hasRussianLetters(const string& str) {
+    for (char c : str) {
+        if ((c >= 'А' && c <= 'я') || c == 'Ё' || c == 'ё') {
+            return true;
+        }
+    }
+    return false;
+}
+
+class Encoder {
+public:
+    virtual ~Encoder() = default;
+
+    virtual string Crypt(const string& message) const = 0;
+    virtual string Salt(const string& password) const = 0;
+
+    virtual void ValidateInput(const string& input) const {
+        if (input.empty()) {
+            throw "Входная строка не может быть пустой";
+        }
+    }
+};
+
+class Atbash : public Encoder {
+public:
+    string Crypt(const string& message) const override {
+        ValidateInput(message);
+        string result;
+        for (char c : message) {
+            if (isalpha(c)) {
+                if (isupper(c)) {
+                    result += 'Z' - (c - 'A');
+                }
+                else {
+                    result += 'z' - (c - 'a');
+                }
+            }
+            else {
+                result += c;
+            }
+        }
+        return result;
+    }
+
+    string Salt(const string& password) const override {
+        ValidateInput(password);
+        return string(password.rbegin(), password.rend());
+    }
+};
+
+class Caesar : public Encoder {
+    int shift_;
+
+public:
+    explicit Caesar(int shift = 3) : shift_(shift) {
+        if (shift == 0) throw "Сдвиг не может быть равен нулю";
+    }
+
+    string Crypt(const string& message) const override {
+        ValidateInput(message);
+        string result;
+        for (char c : message) {
+            if (isalpha(c)) {
+                char base = isupper(c) ? 'A' : 'a';
+                c = base + (c - base + shift_ + 26) % 26;
+                result += c;
+            }
+            else {
+                result += c;
+            }
+        }
+        return result;
+    }
+
+    string Salt(const string& password) const override {
+        ValidateInput(password);
+        string salted = password;
+        for (size_t i = 1; i < salted.size(); i += 2) {
+            salted[i] = toupper(salted[i]);
+        }
+        return salted;
+    }
+};
+
+class CustomSaltEncoder : public Encoder {
+    string salt_;
+
+public:
+    explicit CustomSaltEncoder(const string& salt = "S3cr3tS4lt") : salt_(salt) {
+        if (salt.empty()) throw "Соль не может быть пустой";
+        if (hasRussianLetters(salt)) {
+            throw "Соль содержит русские символы. Используйте только латинские буквы.";
+        }
+    }
+
+    string Crypt(const string& message) const override {
+        ValidateInput(message);
+        string result = message;
+        for (size_t i = 0; i < result.size(); ++i) {
+            result[i] ^= salt_[i % salt_.size()];
+        }
+        return result;
+    }
+
+    string Salt(const string& password) const override {
+        ValidateInput(password);
+        return salt_ + password + salt_;
+    }
+};
+
+class MessageLibrary {
+    map<int, pair<string, const Encoder*>> messages;
+    int nextId = 1;
+
+public:
+    int addMessage(const string& message, const Encoder* encoder) {
+        if (hasRussianLetters(message)) {
+            throw "Сообщение содержит русские символы. Используйте только латинские буквы.";
+        }
+        messages[nextId] = make_pair(message, encoder);
+        return nextId++;
+    }
+
+    string getMessage(int id) {
+        if (messages.find(id) == messages.end()) {
+            throw "Сообщение не найдено";
+        }
+        return messages[id].first;
+    }
+
+    const Encoder* getEncoder(int id) {
+        if (messages.find(id) == messages.end()) {
+            throw "Сообщение не найдено";
+        }
+        return messages[id].second;
+    }
+
+    void listMessages() const {
+        if (messages.empty()) {
+            cout << "Библиотека пуста\n";
+            return;
+        }
+        cout << "Сохраненные сообщения:\n";
+        for (const auto& entry : messages) {
+            cout << entry.first << ": " << entry.second.first << endl;
+        }
+    }
+};
+
+void showMenu() {
+    cout << " ========================================= \n";
+    cout << "|              Меню шифрования            |\n";
+    cout << "|=========================================|\n";
+    cout << "|1. Зашифровать новое сообщение           |\n";
+    cout << "|2. Расшифровать сообщение из библиотеки  |\n";
+    cout << "|3. Просмотреть все сообщения в библиотеке|\n";
+    cout << "|4. Выход                                 |\n";
+    cout << "|Выберите опцию:                          |\n";
+    cout << " ========================================= \n";
+}
+
+int main() {
+    setlocale(LC_ALL, "Russian");
+    MessageLibrary library;
+    Atbash atbash;
+    Caesar caesar(5);
+    CustomSaltEncoder custom;
+
+    int choice;
+    do {
+        showMenu();
+        cin >> choice;
+        cin.ignore();
+
+        try {
+            switch (choice) {
+            case 1: {
+                cout << "Введите сообщение для шифрования: ";
+                string message;
+                getline(cin, message);
+
+                if (hasRussianLetters(message)) {
+                    throw "Ошибка: сообщение содержит русские символы. Используйте только латинские буквы.";
+                }
+
+                cout << "Выбор шифрования:\n";
+                cout << "1. Атбаш\n";
+                cout << "2. Цезарь (смещение на 5)\n";
+                cout << "3. Соль\n";
+                cout << "Мой выбор: ";
+                int encChoice;
+                cin >> encChoice;
+                cin.ignore();
+
+                const Encoder* encoder = nullptr;
+                switch (encChoice) {
+                case 1: encoder = &atbash; break;
+                case 2: encoder = &caesar; break;
+                case 3: encoder = &custom; break;
+                default: throw "Неверный выбор кодировщика";
+                }
+
+                string encrypted = encoder->Crypt(message);
+                int id = library.addMessage(encrypted, encoder);
+
+                cout << "Сообщение успешно зашифровано!\n";
+                cout << "Зашифрованный текст: " << encrypted << endl;
+                cout << "Хранится с ID: " << id << endl;
+                break;
+            }
+            case 2: {
+                cout << "Введите ID сообщения для расшифровки: ";
+                int id;
+                cin >> id;
+                cin.ignore();
+
+                string encrypted = library.getMessage(id);
+                const Encoder* encoder = library.getEncoder(id);
+
+                string decrypted = encoder->Crypt(encrypted);
+
+                cout << "Зашифрованное сообщение: " << encrypted << endl;
+                cout << "Расшифрованное сообщение: " << decrypted << endl;
+                break;
+            }
+            case 3:
+                library.listMessages();
+                break;
+            case 4:
+                cout << "Выходящий...\n";
+                break;
+            default:
+                cout << "Неверный выбор, повторите попытку\n";
+            }
+        }
+        catch (const char* e) {
+            cerr << "Ошибка: " << e << endl;
+        }
+        catch (...) {
+            cerr << "Произошла неизвестная ошибка\n";
+        }
+    } while (choice != 4);
+
+    return 0;
+}
