@@ -1,0 +1,87 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Tovar {
+private:
+    string name;
+    double price;
+public:
+    Tovar(string name, double price) : name(name), price(price) 
+    {
+
+    }
+    virtual void print() {
+        cout << "Название: " << name << ", Цена: " << price << " руб.";
+    }
+};
+
+
+class Product : public Tovar {
+private:
+    string proizvoditel;
+public:
+    Product(string name, double price, string proizvoditel) : Tovar(name, price), proizvoditel(proizvoditel) 
+    {
+
+    }
+    void print()
+    {
+        Tovar::print();
+        cout << ", Производитель: " << proizvoditel << endl;
+    }
+};
+
+class DairyProduct : public Product {
+private:
+    int hp;
+public:
+    DairyProduct(string name, double price, string proizvoditel, int hp) : Product(name, price, proizvoditel), hp(hp) 
+    {
+
+    }
+    void print()
+    {
+        Tovar::print();
+        cout << ", Молочный продукт, срок годности: " << hp << " дней" << endl;
+    }
+};
+
+class Toy : public Tovar {
+private:
+    int age;
+public:
+    Toy(string name, double price, int age) : Tovar(name, price), age(age) 
+    {
+
+    }
+    void print()
+    {
+        Tovar::print();
+        cout << ", Игрушка для детей от " << age << " лет" << endl;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    Tovar* WW[3];
+
+    WW[0] = new Product("КС 2", 1500, "Valve");
+    WW[1] = new DairyProduct("Молоко", 80, "Коровушка", 14);
+    WW[2] = new Toy("Лего", 777, 6);
+
+    for (int i = 0; i < 3; i++) {
+        WW[i]->print();
+    }
+    return 0;
+}
+/*
+Колосов Алексей
+Практика :
+Игрушка, продукт, товар, молочный продукт
+Теория :
+
+В чем заключаются особенности доступа членов класса с модификатором private ?
+
+Какие механизмы используются в языке C++ для реализации концепции полиморфизма ?
+*/
