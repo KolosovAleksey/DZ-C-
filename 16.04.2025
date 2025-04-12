@@ -1,0 +1,123 @@
+using System;
+using System.Threading;
+
+class TrafficLight
+{
+    private enum LightColor
+    {
+        Red,
+        Yellow, 
+        Green 
+    }
+
+    private LightColor currentColor;
+    private LightColor previousColor;
+    private bool isRunning;
+
+    private const int RedDuration = 5000;
+    private const int YellowDuration = 2000;
+    private const int GreenDuration = 10000;
+
+    public TrafficLight()
+    {
+        currentColor = LightColor.Red;
+        previousColor = LightColor.Green;
+        isRunning = false;
+    }
+
+    public void Start()
+    {
+        if (isRunning) return;
+
+        isRunning = true;
+        Console.WriteLine("Светофор начал работу");
+
+        while (isRunning)
+        {
+            switch (currentColor)
+            {
+                case LightColor.Red:
+                    Notify("Красный свет! Стоять!", ConsoleColor.Red);
+                    Thread.Sleep(RedDuration);
+                    previousColor = currentColor;
+                    currentColor = LightColor.Yellow;
+                    break;
+
+                case LightColor.Yellow:
+                    if (previousColor == LightColor.Red)
+                    {
+                        Notify("Жёлтый свет! Приготовиться!", ConsoleColor.Yellow);
+                    }
+                    else
+                    {
+                        Notify("Жёлтый свет! Внимание!", ConsoleColor.Yellow);
+                    }
+                    Thread.Sleep(YellowDuration);
+                    previousColor = currentColor;
+                    currentColor = (previousColor == LightColor.Yellow &&
+                                   previousColor == LightColor.Red) ?
+                                   LightColor.Green : LightColor.Red;
+                    break;
+
+                case LightColor.Green:
+                    Notify("Зелёный свет! Идти!", ConsoleColor.Green);
+                    Thread.Sleep(GreenDuration);
+                    previousColor = currentColor;
+                    currentColor = LightColor.Yellow;
+                    break;
+            }
+        }
+    }
+
+    public void Stop()
+    {
+        isRunning = false;
+        Console.WriteLine("Светофор остановлен");
+    }
+
+    private void Notify(string message, ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
+        Console.WriteLine($"[{DateTime.Now:T}] {message}");
+        Console.ResetColor();
+
+        if (message.Contains("Зелёный"))
+        {
+            Console.WriteLine("Водители: Можно ехать!");
+            Console.WriteLine("Пешеходы: Можно переходить дорогу!");
+        }
+        else if (message.Contains("Красный"))
+        {
+            Console.WriteLine("Водители: Остановиться перед стоп-линией!");
+            Console.WriteLine("Пешеходы: Ожидать зелёного сигнала!");
+        }
+        else if (message.Contains("Жёлтый"))
+        {
+            Console.WriteLine("Водители: Приготовиться к движению/остановке!");
+            Console.WriteLine("Пешеходы: Завершить переход или остаться на месте!");
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        TrafficLight trafficLight = new TrafficLight();
+
+        Console.WriteLine("Управление светофором");
+        Console.WriteLine("Нажмите Enter для запуска...");
+        Console.ReadLine();
+
+        Thread trafficLightThread = new Thread(trafficLight.Start);
+        trafficLightThread.Start();
+
+        Console.WriteLine("Светофор работает. Нажмите Enter для остановки...");
+        Console.ReadLine();
+
+        trafficLight.Stop();
+        trafficLightThread.Join();
+
+        Console.WriteLine("Программа завершена.");
+    }
+}
