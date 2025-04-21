@@ -1,0 +1,238 @@
+#include "framework.h"
+#include "Калькулятор.h"
+#include <windows.h>
+#include <tchar.h>
+#include <string>
+#include <sstream>
+#include <iomanip>
+
+HWND hDisplay;
+std::wstring currentInput;
+double firstOperand = 0;
+double secondOperand = 0;
+wchar_t currentOperator = L'\0';
+bool newInput = true;
+
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+void CreateCalculatorControls(HWND);
+void ProcessButtonClick(wchar_t);
+void UpdateDisplay();
+void PerformCalculation();
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR szCmdLine, int iCmdShow)
+{
+    static TCHAR szAppName[] = _T("Windows Calculator");
+    HWND hwnd;
+    MSG msg;
+    WNDCLASS wndclass;
+
+    wndclass.style = CS_HREDRAW | CS_VREDRAW;
+    wndclass.lpfnWndProc = WndProc;
+    wndclass.cbClsExtra = 0;
+    wndclass.cbWndExtra = 0;
+    wndclass.hInstance = hInstance;
+    wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndclass.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+    wndclass.lpszMenuName = NULL;
+    wndclass.lpszClassName = szAppName;
+
+    if (!RegisterClass(&wndclass))
+    {
+        MessageBox(NULL, _T("This program requires Windows NT!"), szAppName, MB_ICONERROR);
+        return 0;
+    }
+
+    hwnd = CreateWindow(szAppName,
+        _T("Калькулятор Windows"),
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        300,
+        400,
+        NULL,
+        NULL,
+        hInstance,
+        NULL);
+
+    ShowWindow(hwnd, iCmdShow);
+    UpdateWindow(hwnd);
+
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+    return msg.wParam;
+}
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_CREATE:
+        CreateCalculatorControls(hwnd);
+        return 0;
+
+    case WM_COMMAND:
+    {
+        if (HIWORD(wParam) == BN_CLICKED)
+        {
+            int buttonId = LOWORD(wParam);
+            if (buttonId >= 1000 && buttonId <= 1023)
+            {
+                wchar_t buttonText[10];
+                HWND hButton = (HWND)lParam;
+                GetWindowText(hButton, buttonText, 10);
+                ProcessButtonClick(buttonText[0]);
+            }
+        }
+        return 0;
+    }
+
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        return 0;
+    }
+    return DefWindowProc(hwnd, message, wParam, lParam);
+}
+
+void CreateCalculatorControls(HWND hwnd)
+{
+    hDisplay = CreateWindow(_T("EDIT"), _T("0"),
+        WS_CHILD | WS_VISIBLE | ES_RIGHT | ES_READONLY,
+        10, 10, 260, 40,
+        hwnd, NULL, NULL, NULL);
+
+    HFONT hFont = CreateFont(24, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+        DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial"));
+    SendMessage(hDisplay, WM_SETFONT, (WPARAM)hFont, TRUE);
+
+    const wchar_t* buttons[] = {
+        L"%", L"CE", L"C", L"☑",
+        L"Yˣ", L"x²", L"¼π", L"+",
+        L"7", L"8", L"9", L"×",
+        L"4", L"5", L"6", L"-",
+        L"1", L"2", L"3", L"+",
+        L"*L", L"0", L",", L"="
+    };
+
+    for (int i = 0; i < 6; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            int index = i * 4 + j;
+            CreateWindow(_T("BUTTON"), buttons[index],
+                WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON,
+                10 + j * 65, 60 + i * 50, 60, 45,
+                hwnd, (HMENU)(1000 + index), NULL, NULL);
+        }
+    }
+}
+
+void ProcessButtonClick(wchar_t button)
+{
+    if (button >= L'0' && button <= L'9')
+    {
+        if (newInput)
+        {
+            currentInput.clear();
+            newInput = false;
+        }
+        currentInput += button;
+        UpdateDisplay();
+    }
+    else if (button == L',')
+    {
+        if (newInput)
+        {
+            currentInput = L"0";
+            newInput = false;
+        }
+        if (currentInput.find(L',') == std::wstring::npos)
+        {
+            currentInput += L',';
+            UpdateDisplay();
+        }
+    }
+    else if (button == L'C')
+    {
+        currentInput.clear();
+        firstOperand = 0;
+        secondOperand = 0;
+        currentOperator = L'\0';
+        newInput = true;
+        UpdateDisplay();
+    }
+    else if (button == L'=' && currentOperator != L'\0')
+    {
+        secondOperand = std::stod(currentInput);
+        PerformCalculation();
+        currentOperator = L'\0';
+        newInput = true;
+    }
+    else if (button == L'+' || button == L'-' || button == L'×' || button == L'%')
+    {
+        if (currentOperator != L'\0')
+        {
+            secondOperand = std::stod(currentInput);
+            PerformCalculation();
+        }
+        else
+        {
+            firstOperand = std::stod(currentInput);
+        }
+        currentOperator = button;
+        newInput = true;
+    }
+}
+
+void UpdateDisplay()
+{
+    if (currentInput.empty())
+    {
+        SetWindowText(hDisplay, L"0");
+    }
+    else
+    {
+        SetWindowText(hDisplay, currentInput.c_str());
+    }
+}
+
+void PerformCalculation()
+{
+    double result = 0;
+    switch (currentOperator)
+    {
+    case L'+':
+        result = firstOperand + secondOperand;
+        break;
+    case L'-':
+        result = firstOperand - secondOperand;
+        break;
+    case L'×':
+        result = firstOperand * secondOperand;
+        break;
+    case L'%':
+        result = firstOperand * (secondOperand / 100.0);
+        break;
+    }
+
+    std::wstringstream wss;
+    wss << std::setprecision(15) << result;
+    currentInput = wss.str();
+
+    size_t dotPos = currentInput.find(L',');
+    if (dotPos != std::wstring::npos)
+    {
+        currentInput.erase(currentInput.find_last_not_of(L'0') + 1);
+        if (currentInput.back() == L',')
+        {
+            currentInput.erase(dotPos);
+        }
+    }
+
+    firstOperand = result;
+    UpdateDisplay();
+}
