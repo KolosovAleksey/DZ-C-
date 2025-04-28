@@ -1,0 +1,118 @@
+//1
+using System;
+using System.Collections.Generic;
+
+public delegate bool FilterDelegate(int number);
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 };
+
+        FilterDelegate evenFilter = IsEven;
+        List<int> evenNumbers = FilterList(numbers, evenFilter);
+        Console.WriteLine("Четные числа: " + string.Join(", ", evenNumbers));
+
+        FilterDelegate positiveFilter = IsPositive;
+        List<int> positiveNumbers = FilterList(numbers, positiveFilter);
+        Console.WriteLine("Положительные числа: " + string.Join(", ", positiveNumbers));
+    }
+
+    public static List<int> FilterList(List<int> list, FilterDelegate filter)
+    {
+        List<int> result = new List<int>();
+        foreach (int number in list)
+        {
+            if (filter(number))
+            {
+                result.Add(number);
+            }
+        }
+        return result;
+    }
+
+    public static bool IsEven(int number)
+    {
+        return number % 2 == 0;
+    }
+
+    public static bool IsPositive(int number)
+    {
+        return number > 0;
+    }
+}
+
+//2
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+        int addValue = 10;
+
+        Func<List<int>, int, List<int>> addToEachElement = (list, x) =>
+        {
+            List<int> result = new List<int>();
+            foreach (int num in list)
+            {
+                result.Add(num + x);
+            }
+            return result;
+        };
+
+        List<int> modifiedList = addToEachElement(numbers, addValue);
+
+        Console.WriteLine("Исходный список: " + string.Join(", ", numbers));
+        Console.WriteLine("Список после прибавления " + addValue + ": " + string.Join(", ", modifiedList));
+    }
+}
+
+//3
+
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        var employees = new[]
+        {
+            new { Name = "Ivan", Department = "IT", Salary = 100000 },
+            new { Name = "Petr", Department = "HR", Salary = 80000 },
+            new { Name = "Alexey", Department = "IT", Salary = 120000 },
+            new { Name = "Mary", Department = "HR", Salary = 75000 },
+            new { Name = "Darya", Department = "IT", Salary = 95000 },
+            new { Name = "Sergey", Department = "Finance", Salary = 110000 }
+        };
+
+        Console.WriteLine("TOP-3 самых высокооплачиваемых сотрудников:");
+        var top3Employees = employees
+            .OrderByDescending(e => e.Salary)
+            .Take(3);
+
+        foreach (var emp in top3Employees)
+        {
+            Console.WriteLine($"{emp.Name} - {emp.Salary} rub.");
+        }
+        Console.WriteLine();
+
+        var departmentWithHighestAvgSalary = employees
+            .GroupBy(e => e.Department)
+            .Select(g => new
+            {
+                Department = g.Key,
+                AverageSalary = g.Average(e => e.Salary)
+            })
+            .OrderByDescending(x => x.AverageSalary)
+            .First();
+
+        Console.WriteLine($"Департамент с самой высокой средней зарплатой: {departmentWithHighestAvgSalary.Department}");
+        Console.WriteLine($"Средняя зарплата: {departmentWithHighestAvgSalary.AverageSalary:F2} rub.");
+    }
+}
