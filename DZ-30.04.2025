@@ -1,0 +1,93 @@
+//1
+using System;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string file1Path = "file1.txt";
+        string file2Path = "file2.txt";
+        string mergedPath = "merged.txt";
+
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(mergedPath))
+            {
+                if (File.Exists(file1Path))
+                {
+                    string[] lines = File.ReadAllLines(file1Path);
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine($"[file1.txt] {line}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Файл {file1Path} не найден.");
+                }
+
+                if (File.Exists(file2Path))
+                {
+                    string[] lines = File.ReadAllLines(file2Path);
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine($"[file2.txt] {line}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Файл {file2Path} не найден.");
+                }
+            }
+
+            Console.WriteLine("Файлы успешно объединены в merged.txt");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
+    }
+}
+
+//2
+using System;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string inputPath = "input.txt";
+        string resultPath = "result.txt";
+
+        try
+        {
+            if (File.Exists(inputPath))
+            {
+                string text = File.ReadAllText(inputPath);
+                int wordCount = CountWords(text);
+
+                File.WriteAllText(resultPath, $"Количество слов: {wordCount}");
+                Console.WriteLine($"Результат сохранен в {resultPath}");
+            }
+            else
+            {
+                Console.WriteLine($"Файл {inputPath} не найден.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
+    }
+
+    static int CountWords(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
+
+        string[] words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        return words.Length;
+    }
+}
