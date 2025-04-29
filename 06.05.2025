@@ -1,0 +1,82 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class Program
+{
+    private static List<int> numbers = new List<int>();
+    private static List<int> lastSnapshot = new List<int>();
+    private static readonly object lockObj = new object();
+    private static bool isRunning = true;
+    private static Random random = new Random();
+
+    static void Main(string[] args)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            numbers.Add(random.Next(1, 100));
+        }
+
+        Console.WriteLine("Исходный список: " + string.Join(", ", numbers));
+
+        Thread sorterThread = new Thread(SortList);
+        sorterThread.Start();
+
+        Thread observerThread = new Thread(ObserveList);
+        observerThread.Start();
+
+        Console.WriteLine("Нажмите Enter для остановки...");
+        Console.ReadLine();
+
+        isRunning = false;
+        sorterThread.Join();
+        observerThread.Join();
+    }
+
+    private static void SortList()
+    {
+        while (isRunning)
+        {
+            lock (lockObj)
+            {
+                numbers.Sort();
+            }
+            Thread.Sleep(100);
+        }
+    }
+
+    private static void ObserveList()
+    {
+        while (isRunning)
+        {
+            List<int> currentSnapshot;
+            
+            lock (lockObj)
+            {
+                currentSnapshot = new List<int>(numbers);
+            }
+
+            if (!ListsAreEqual(currentSnapshot, lastSnapshot))
+            {
+                Console.WriteLine($"Список изменился: {string.Join(", ", currentSnapshot)}");
+                lastSnapshot = currentSnapshot;
+            }
+
+            Thread.Sleep(50);
+        }
+    }
+
+    private static bool ListsAreEqual(List<int> list1, List<int> list2)
+    {
+        if (list1.Count != list2.Count) 
+            return false;
+
+        for (int i = 0; i < list1.Count; i++)
+        {
+            if (list1[i] != list2[i])
+                return false;
+        }
+
+        return true;
+    }
+}
