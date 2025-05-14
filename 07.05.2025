@@ -1,0 +1,108 @@
+/*
+using System;
+using System.IO;
+using System.Threading;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: Program.exe <search_word> <file_path1> <file_path2> ...");
+            return;
+        }
+
+        string searchWord = args[0];
+        string[] filePaths = new string[args.Length - 1];
+        Array.Copy(args, 1, filePaths, 0, filePaths.Length);
+
+        string[] results = new string[filePaths.Length];
+
+        Thread[] threads = new Thread[filePaths.Length];
+        for (int i = 0; i < filePaths.Length; i++)
+        {
+            int index = i;
+            threads[i] = new Thread(() =>
+            {
+                try
+                {
+                    string content = File.ReadAllText(filePaths[index]);
+                    if (content.Contains(searchWord))
+                    {
+                        results[index] = $"Found '{searchWord}' in {filePaths[index]}";
+                    }
+                    else
+                    {
+                        results[index] = $"'{searchWord}' not found in {filePaths[index]}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    results[index] = $"Error processing {filePaths[index]}: {ex.Message}";
+                }
+            });
+            threads[i].Start();
+        }
+
+        foreach (Thread thread in threads)
+        {
+            thread.Join();
+        }
+
+        foreach (string result in results)
+        {
+            Console.WriteLine(result);
+        }
+    }
+}
+*/
+
+
+using System;
+using System.Drawing;
+using System.IO;
+using System.Net;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        if (args.Length != 1)
+        {
+            Console.WriteLine("Usage: Program.exe <image_url>");
+            return;
+        }
+
+        string imageUrl = args[0];
+        string outputPath = "resized_image.jpg";
+
+        try
+        {
+            using (WebClient client = new WebClient())
+            {
+                Console.WriteLine("Downloading image...");
+                byte[] imageData = client.DownloadData(imageUrl);
+                
+                using (MemoryStream ms = new MemoryStream(imageData))
+                using (Image originalImage = Image.FromStream(ms))
+                {
+                    Console.WriteLine("Resizing image to 64x64...");
+                    using (Bitmap resizedImage = new Bitmap(64, 64))
+                    using (Graphics graphics = Graphics.FromImage(resizedImage))
+                    {
+                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        graphics.DrawImage(originalImage, 0, 0, 64, 64);
+                        
+                        resizedImage.Save(outputPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        Console.WriteLine($"Image saved to {outputPath}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}
