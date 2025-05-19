@@ -179,23 +179,23 @@ int main() {
 
 //76
 
-/*bool isSameColor(int k, int l, int m, int n) { //Проверка цвета поля
+/*bool isSameColor(int k, int l, int m, int n) { 
     return (k + l) % 2 == (m + n) % 2;
 }
 
-bool queenThreatens(int k, int l, int m, int n) { //Проверка угрожает ли ферзь полю
+bool queenThreatens(int k, int l, int m, int n) { 
     return(k == m || l == n || abs(k - m) == abs(l - n));
 }
 
-bool knightThreatens(int k, int l, int m, int n) { //Проверка угрожает ли конь полю
+bool knightThreatens(int k, int l, int m, int n) { 
     return (abs(k - m) == 2 && abs(l - n) == 1) || (abs(k - m) == 1 && abs(l - n) == 2);
 }
 
-bool rookCanMove(int k, int l, int m, int n) { //Проверка может ли Ладья за 1 ход перейти на поле
+bool rookCanMove(int k, int l, int m, int n) { 
     return (k == m || l == n);
 }
 
-bool canRookMoveInTwo(int k, int l, int m, int n) { //Проверка может ли ладья за 2 хода попасть
+bool canRookMoveInTwo(int k, int l, int m, int n) { 
     if (k != m) {
         return k != m && ((l == n) || (m != l));
     }
@@ -205,11 +205,11 @@ bool canRookMoveInTwo(int k, int l, int m, int n) { //Проверка може�
     return false;
 }
 
-bool queenCanMoveInTwo(int k, int l, int m, int n) { //Проверка может ли ферзь попасть за 2 хода 
+bool queenCanMoveInTwo(int k, int l, int m, int n) { 
     return(k == m || l == n || abs(k - m) == abs(l - n));
 }
 
-bool bishopCanMove(int k, int l, int m, int n) { //Проверка сможет ли слон слон попасть за 1 ход
+bool bishopCanMove(int k, int l, int m, int n) { 
     return abs(k - m) == abs(l - n);
 }
     
