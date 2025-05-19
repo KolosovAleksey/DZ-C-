@@ -155,10 +155,8 @@ int main() {
         vector<uint8_t> output_data;
         
         if (input_encoding == 1 && output_encoding == 2) {
-            // CP1251 -> UTF-8
             output_data = cp1251_to_utf8(input_data);
         } else if (input_encoding == 2 && output_encoding == 1) {
-            // UTF-8 -> CP1251
             output_data = utf8_to_cp1251(input_data);
         } else {
             output_data = input_data;
