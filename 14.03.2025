@@ -38,7 +38,6 @@ fun QuizApp() {
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         if (selectedLevel == null) {
-            // Выбор уровня сложности
             Text(text = "Выберите уровень сложности:")
             quizLevels.forEach { level ->
                 Button(onClick = {
@@ -82,7 +81,6 @@ fun QuizApp() {
                 Text(text = if (currentQuestion < selectedLevel!!.questions.size - 1) "Следующий вопрос" else "Закончить")
             }
         } else {
-            // Результаты квиза
             Text(text = "Ваш результат: $score/${selectedLevel!!.questions.size}")
             Button(onClick = {
                 selectedLevel = null
