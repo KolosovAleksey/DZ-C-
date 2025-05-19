@@ -45,8 +45,8 @@ public:
     int padding_horizontal;
     bool checkVal = false;
     bool target = false;
-    string horizontalAlign; // "left", "center", "right"
-    string verticalAlign;   // "top", "center", "bottom"
+    string horizontalAlign;
+    string verticalAlign;
 
     bool checktarget()
     {
