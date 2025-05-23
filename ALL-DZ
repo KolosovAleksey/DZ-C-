@@ -1550,29 +1550,5207 @@ int main() {
 
     return 0;
 }
-*/
+
+//1
+using System;
+using System.Collections.Generic;
+
+public delegate bool FilterDelegate(int number);
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5 };
+
+        FilterDelegate evenFilter = IsEven;
+        List<int> evenNumbers = FilterList(numbers, evenFilter);
+        Console.WriteLine("Четные числа: " + string.Join(", ", evenNumbers));
+
+        FilterDelegate positiveFilter = IsPositive;
+        List<int> positiveNumbers = FilterList(numbers, positiveFilter);
+        Console.WriteLine("Положительные числа: " + string.Join(", ", positiveNumbers));
+    }
+
+    public static List<int> FilterList(List<int> list, FilterDelegate filter)
+    {
+        List<int> result = new List<int>();
+        foreach (int number in list)
+        {
+            if (filter(number))
+            {
+                result.Add(number);
+            }
+        }
+        return result;
+    }
+
+    public static bool IsEven(int number)
+    {
+        return number % 2 == 0;
+    }
+
+    public static bool IsPositive(int number)
+    {
+        return number > 0;
+    }
+}
+
+//2
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        List<int> numbers = new List<int> { 1, 2, 3, 4, 5 };
+        int addValue = 10;
+
+        Func<List<int>, int, List<int>> addToEachElement = (list, x) =>
+        {
+            List<int> result = new List<int>();
+            foreach (int num in list)
+            {
+                result.Add(num + x);
+            }
+            return result;
+        };
+
+        List<int> modifiedList = addToEachElement(numbers, addValue);
+
+        Console.WriteLine("Исходный список: " + string.Join(", ", numbers));
+        Console.WriteLine("Список после прибавления " + addValue + ": " + string.Join(", ", modifiedList));
+    }
+}
+
+//3
+
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main()
+    {
+        var employees = new[]
+        {
+            new { Name = "Ivan", Department = "IT", Salary = 100000 },
+            new { Name = "Petr", Department = "HR", Salary = 80000 },
+            new { Name = "Alexey", Department = "IT", Salary = 120000 },
+            new { Name = "Mary", Department = "HR", Salary = 75000 },
+            new { Name = "Darya", Department = "IT", Salary = 95000 },
+            new { Name = "Sergey", Department = "Finance", Salary = 110000 }
+        };
+
+        Console.WriteLine("TOP-3 самых высокооплачиваемых сотрудников:");
+        var top3Employees = employees
+            .OrderByDescending(e => e.Salary)
+            .Take(3);
+
+        foreach (var emp in top3Employees)
+        {
+            Console.WriteLine($"{emp.Name} - {emp.Salary} rub.");
+        }
+        Console.WriteLine();
+
+        var departmentWithHighestAvgSalary = employees
+            .GroupBy(e => e.Department)
+            .Select(g => new
+            {
+                Department = g.Key,
+                AverageSalary = g.Average(e => e.Salary)
+            })
+            .OrderByDescending(x => x.AverageSalary)
+            .First();
+
+        Console.WriteLine($"Департамент с самой высокой средней зарплатой: {departmentWithHighestAvgSalary.Department}");
+        Console.WriteLine($"Средняя зарплата: {departmentWithHighestAvgSalary.AverageSalary:F2} rub.");
+    }
+}
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+class Program
+{
+    private static List<int> numbers = new List<int>();
+    private static List<int> lastSnapshot = new List<int>();
+    private static readonly object lockObj = new object();
+    private static bool isRunning = true;
+    private static Random random = new Random();
+
+    static void Main(string[] args)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            numbers.Add(random.Next(1, 100));
+        }
+
+        Console.WriteLine("Исходный список: " + string.Join(", ", numbers));
+
+        Thread sorterThread = new Thread(SortList);
+        sorterThread.Start();
+
+        Thread observerThread = new Thread(ObserveList);
+        observerThread.Start();
+
+        Console.WriteLine("Нажмите Enter для остановки...");
+        Console.ReadLine();
+
+        isRunning = false;
+        sorterThread.Join();
+        observerThread.Join();
+    }
+
+    private static void SortList()
+    {
+        while (isRunning)
+        {
+            lock (lockObj)
+            {
+                numbers.Sort();
+            }
+            Thread.Sleep(100);
+        }
+    }
+
+    private static void ObserveList()
+    {
+        while (isRunning)
+        {
+            List<int> currentSnapshot;
+            
+            lock (lockObj)
+            {
+                currentSnapshot = new List<int>(numbers);
+            }
+
+            if (!ListsAreEqual(currentSnapshot, lastSnapshot))
+            {
+                Console.WriteLine($"Список изменился: {string.Join(", ", currentSnapshot)}");
+                lastSnapshot = currentSnapshot;
+            }
+
+            Thread.Sleep(50);
+        }
+    }
+
+    private static bool ListsAreEqual(List<int> list1, List<int> list2)
+    {
+        if (list1.Count != list2.Count) 
+            return false;
+
+        for (int i = 0; i < list1.Count; i++)
+        {
+            if (list1[i] != list2[i])
+                return false;
+        }
+
+        return true;
+    }
+}
+
+
 
 /*
-//Задание:
+using System;
+using System.IO;
+using System.Threading;
 
+class Program
+{
+    static void Main(string[] args)
+    {
+        if (args.Length < 2)
+        {
+            Console.WriteLine("Usage: Program.exe <search_word> <file_path1> <file_path2> ...");
+            return;
+        }
 
+        string searchWord = args[0];
+        string[] filePaths = new string[args.Length - 1];
+        Array.Copy(args, 1, filePaths, 0, filePaths.Length);
+
+        string[] results = new string[filePaths.Length];
+
+        Thread[] threads = new Thread[filePaths.Length];
+        for (int i = 0; i < filePaths.Length; i++)
+        {
+            int index = i;
+            threads[i] = new Thread(() =>
+            {
+                try
+                {
+                    string content = File.ReadAllText(filePaths[index]);
+                    if (content.Contains(searchWord))
+                    {
+                        results[index] = $"Found '{searchWord}' in {filePaths[index]}";
+                    }
+                    else
+                    {
+                        results[index] = $"'{searchWord}' not found in {filePaths[index]}";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    results[index] = $"Error processing {filePaths[index]}: {ex.Message}";
+                }
+            });
+            threads[i].Start();
+        }
+
+        foreach (Thread thread in threads)
+        {
+            thread.Join();
+        }
+
+        foreach (string result in results)
+        {
+            Console.WriteLine(result);
+        }
+    }
+}
 */
+
+
+using System;
+using System.Drawing;
+using System.IO;
+using System.Net;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        if (args.Length != 1)
+        {
+            Console.WriteLine("Usage: Program.exe <image_url>");
+            return;
+        }
+
+        string imageUrl = args[0];
+        string outputPath = "resized_image.jpg";
+
+        try
+        {
+            using (WebClient client = new WebClient())
+            {
+                Console.WriteLine("Downloading image...");
+                byte[] imageData = client.DownloadData(imageUrl);
+                
+                using (MemoryStream ms = new MemoryStream(imageData))
+                using (Image originalImage = Image.FromStream(ms))
+                {
+                    Console.WriteLine("Resizing image to 64x64...");
+                    using (Bitmap resizedImage = new Bitmap(64, 64))
+                    using (Graphics graphics = Graphics.FromImage(resizedImage))
+                    {
+                        graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        graphics.DrawImage(originalImage, 0, 0, 64, 64);
+                        
+                        resizedImage.Save(outputPath, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        Console.WriteLine($"Image saved to {outputPath}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}
+
+
+using System;
+
+namespace TemplateMethodPattern
+{
+
+    public abstract class OrderProcessor
+    {
+
+        public void ProcessOrder()
+        {
+            CheckStock();
+            ApplyDiscount();
+            CreateOrder();
+            NotifyCustomer();
+        }
+
+        private void CheckStock()
+        {
+            Console.WriteLine("Проверка наличия товара на складе...");
+            Console.WriteLine("Товар в наличии.");
+        }
+
+        protected abstract void ApplyDiscount();
+
+        protected abstract void CreateOrder();
+
+        private void NotifyCustomer()
+        {
+            Console.WriteLine("Отправка уведомления клиенту на email...");
+            Console.WriteLine("Клиент уведомлен.");
+        }
+    }
+
+    public class RegularOrderProcessor : OrderProcessor
+    {
+        protected override void ApplyDiscount()
+        {
+            Console.WriteLine("Применение стандартной скидки 5%...");
+        }
+
+        protected override void CreateOrder()
+        {
+            Console.WriteLine("Создание обычного заказа...");
+            Console.WriteLine("Обычный заказ создан.");
+        }
+    }
+
+    public class VipOrderProcessor : OrderProcessor
+    {
+        protected override void ApplyDiscount()
+        {
+            Console.WriteLine("Применение VIP скидки 15%...");
+        }
+
+        protected override void CreateOrder()
+        {
+            Console.WriteLine("Создание VIP заказа с приоритетной обработкой...");
+            Console.WriteLine("VIP заказ создан.");
+        }
+    }
+
+    public class WholesaleOrderProcessor : OrderProcessor
+    {
+        protected override void ApplyDiscount()
+        {
+            Console.WriteLine("Применение оптовой скидки 25%...");
+        }
+
+        protected override void CreateOrder()
+        {
+            Console.WriteLine("Создание оптового заказа с дополнительной проверкой...");
+            Console.WriteLine("Оптовый заказ создан.");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Обработка обычного заказа:");
+            OrderProcessor regularOrder = new RegularOrderProcessor();
+            regularOrder.ProcessOrder();
+
+            Console.WriteLine("\nОбработка VIP заказа:");
+            OrderProcessor vipOrder = new VipOrderProcessor();
+            vipOrder.ProcessOrder();
+
+            Console.WriteLine("\nОбработка оптового заказа:");
+            OrderProcessor wholesaleOrder = new WholesaleOrderProcessor();
+            wholesaleOrder.ProcessOrder();
+        }
+    }
+}
+
+
+//1
+fun main() {
+    println("Введите символ:")
+    val input = readLine()?.getOrNull(0)
+
+    if (input == null || !input.isUpperCase() || !input.isLetter()) {
+        println("Введенный символ не является латинской прописной буквой.")
+        return
+    }
+
+    when (input) {
+        'L', 'M', 'K', 'D' -> println("Это согласные буквы")
+        else -> println("Возможно, это гласные буквы")
+    }
+}
+//2
+fun main() {
+    val str1 = StringBuilder("Первая строка")
+    val str2 = " и вторая строка"
+
+    str1.append(str2)
+    println("Результат: $str1")
+}
+//3
+fun main() {
+    println("Введите строку:")
+    val input = readLine() ?: return
+
+    val reversedString = input.reversed()
+    println("Инвертированная строка: $reversedString")
+}
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Socks {
+private:
+    string size; 
+    string color; 
+
+public:
+    Socks(const string& size, const string& color)
+        : size(size), color(color) {}
+
+    void display() const {
+        cout << "Носки: Размер - " << size << ", Цвет - " << color << endl;
+    }
+};
+
+class Shoes {
+private:
+    string size;
+    string brand; 
+    string color; 
+
+public:
+    Shoes(const string& size, const string& brand, const string& color)
+        : size(size), brand(brand), color(color) {}
+
+    void display() const {
+        cout << "Обувь: Размер - " << size << ", Бренд - " << brand << ", Цвет - " << color << endl;
+    }
+};
+
+class Stockings {
+private:
+    string size; 
+    string material; 
+
+public:
+    Stockings(const string& size, const string& material)
+        : size(size), material(material) {}
+
+    void display() const {
+        cout << "Чулки: Размер - " << size << ", Материал - " << material << endl;
+    }
+};
+
+class Shop {
+private:
+    vector<Socks> socks; 
+    vector<Shoes> shoes; 
+    vector<Stockings> stockings; 
+
+public:
+    void addSocks(const Socks& sock) {
+        socks.push_back(sock);
+    }
+
+    void addShoes(const Shoes& shoe) {
+        shoes.push_back(shoe);
+    }
+
+    void addStockings(const Stockings& stocking) {
+        stockings.push_back(stocking);
+    }
+
+    void displayAllProducts() const {
+        cout << "Товары в магазине:" << endl;
+
+        cout << "Носки:" << endl;
+        for (const auto& sock : socks) {
+            sock.display();
+        }
+
+        cout << "Обувь:" << endl;
+        for (const auto& shoe : shoes) {
+            shoe.display();
+        }
+
+        cout << "Чулки:" << endl;
+        for (const auto& stocking : stockings) {
+            stocking.display();
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    Shop shop;
+
+    shop.addSocks(Socks("42", "Черный"));
+    shop.addSocks(Socks("38", "Белый"));
+
+    shop.addShoes(Shoes("39", "Nike", "Красный"));
+    shop.addShoes(Shoes("37", "Adidas", "Синий"));
+
+    shop.addStockings(Stockings("M", "Хлопок"));
+    shop.addStockings(Stockings("L", "Шелк"));
+
+    shop.displayAllProducts();
+
+    return 0;
+}
+
+
+
+#include <iostream>
+using namespace std;
+
+template <typename T>
+class LinkedList {
+public:
+    class Node {
+    public:
+        T data;
+        Node* next;
+
+        Node() { this->data = 0; this->next = nullptr; }
+
+        Node(T value) { this->data = value; this->next = nullptr; }
+    };
+
+    Node* Head;
+
+    LinkedList() { this->Head = nullptr; }
+    LinkedList(Node* head) { this->Head = head; }
+
+    void push(T value) {
+        if (Head == nullptr) {
+            Head = new Node(value);
+        }
+        else {
+            Node* current = Head;
+
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = new Node(value);
+        }
+    }
+
+    void print() {
+        if (Head == nullptr) {
+            cout << "Список пустой";
+        }
+        else {
+            Node* current = Head;
+
+            while (current != nullptr) {
+                cout << current->data << " ";
+                current = current->next;
+            }
+            cout << endl;
+        }
+    }
+
+    T get(int index) {
+        if (Head == nullptr) {
+            return 0;
+        }
+        else {
+            Node* current = Head;
+
+            while (current->next != nullptr && index > 0) {
+                current = current->next;
+                index--;
+            }
+            return current->data;
+        }
+    }
+
+    void remove(T data) {
+        Node* current = Head;
+
+        while (current->next != nullptr && current->data != data) {
+            current = current->next;
+        }
+    }
+
+    void removeAt(int index) {
+        Node* current = Head;
+
+        while (current->next != nullptr && index > 1) {
+            current = current->next;
+            index--;
+        }
+        Node* buffer = current->next->next;
+        delete current->next;
+        current->next = buffer;
+    }
+
+    void removeAll() {
+        Node* current = Head;
+        while (current != nullptr) {
+            Node* next = current->next;
+            delete current;
+            current = next;
+        }
+        Head = nullptr;
+    }
+
+    T& operator[] (int i) {
+        Node* current = Head;
+        while (i > 0) {
+            current = current->next;
+            i--;
+        }
+        return current->data;
+    }
+
+    friend std::ostream& operator<<(std::ostream& os, const LinkedList& list) {
+        if (list.Head == nullptr) {
+            os << "Список пустой";
+        }
+        else {
+            Node* current = list.Head;
+
+            while (current != nullptr) {
+                os << current->data << " ";
+                current = current->next;
+            }
+        }
+        return os;
+    }
+
+    LinkedList& operator= (const LinkedList& list) {
+        this->removeAll();
+
+        Node* currentSecond = list.Head;
+
+        while (currentSecond != nullptr) {
+            this->push(currentSecond->data);
+            currentSecond = currentSecond->next;
+        }
+        return *this;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    LinkedList<string> list;
+    list.push("10");
+    list.push("15");
+    list.push("20");
+    list.push("25");
+    list.push("30");
+
+    LinkedList<string> list2;
+    list2 = list;
+
+    list[3] = "Error";
+    list2.print();
+    list.print();
+
+    return 0;
+}
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Distance {
+private:
+    int kilometers;  
+    int meters;   
+
+public:
+    Distance() : kilometers(0), meters(0) {}
+
+    Distance(int km, int m) : kilometers(km), meters(m) {
+        normalize();
+    }
+
+    Distance operator+(const Distance& other) const {
+        return Distance(
+            kilometers + other.kilometers,
+            meters + other.meters
+        );
+    }
+
+    Distance operator-(const Distance& other) const {
+        return Distance(
+            kilometers - other.kilometers,
+            meters - other.meters
+        );
+    }
+
+    Distance operator*(int multiplier) const {
+        return Distance(
+            kilometers * multiplier,
+            meters * multiplier
+        );
+    }
+
+    Distance operator/(int divisor) const {
+        if (divisor == 0) {
+            throw "Division by zero";
+        }
+
+        int totalMeters = kilometers * 1000 + meters;
+        int resultMeters = totalMeters / divisor;
+
+        return Distance(resultMeters / 1000, resultMeters % 1000);
+    }
+
+    bool operator==(const Distance& other) const {
+        return kilometers == other.kilometers && meters == other.meters;
+    }
+
+    bool operator!=(const Distance& other) const {
+        return !(*this == other);
+    }
+
+    friend ostream& operator<<(ostream& out, const Distance& distance) {
+        out << distance.kilometers << " км " << distance.meters << " м";
+        return out;
+    }
+
+    friend istream& operator>>(istream& in, Distance& distance) {
+        in >> distance.kilometers >> distance.meters;
+        distance.normalize();
+        return in;
+    }
+
+private:
+    void normalize() {
+        kilometers += meters / 1000;
+        meters %= 1000;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    Distance d1(10, 500);
+    Distance d2(5, 700);
+
+    cout << "Расстояние1: " << d1 << endl;
+    cout << "Расстояние2: " << d2 << endl;
+
+    Distance sum = d1 + d2;
+    cout << "Сумма Растояний: " << sum << endl;
+
+    Distance difference = d1 - d2;
+    cout << "Разность Растояний: " << difference << endl;
+
+    Distance product = d1 * 3;
+    cout << "Произведение Растояний: " << product << endl;
+
+    Distance quotient = d1 / 4;
+    cout << "Деление Растояний: " << quotient << endl;
+
+    if (d1 == d2) {
+        cout << "Равны" << endl;
+    }
+    else {
+        cout << "Не равны" << endl;
+    }
+
+    return 0;
+}
+//Реализовать класс Расстояние с полями // километры и метры
+// реализовать базовый функционал для // операций +,-, *, /, ==, !=, <<, >>
+// с помощью перегрузки операторов.// Предусмотреть логичность вычислений, 
+// (метры > 1000 -> в километры)
+
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.radioButton
+import androidx.compose.material.Button
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+data class Question(val text: String, val options: List<String>, val correctAnswer: String)
+
+data class QuizLevel(val name: String, val questions: List<Question>)
+
+val quizLevels = listOf(
+    QuizLevel("Легкий", listOf(
+        Question("Какая страна самая могущественная?", listOf("Россия", "Россия", "Россия"), "Россия"),
+        Question("Какой цвет травы?", listOf("Зелёный", "SmokeDeepEveryDay", "Травянной"), " SmokeDeepEveryDay ")
+    )),
+    QuizLevel("Нормальный", listOf(
+        Question("Какой сейчас год?", listOf("2025", "2006", "Замечательный"), " Замечательный "),
+        Question("Какая странна лучше?", listOf("Россия", "США", "Германия"), " Россия ")
+    )),
+    QuizLevel("Сложный", listOf(
+        Question("Кто самый лучший президент?", listOf("Трамп", "Путин", "Байден"), " Путин "),
+        Question("Какой элемент обозначается символом '52'?", listOf("Санкт-Петербург", "Париж", "Москва"), " Санкт-Петербург ")
+    ))
+)
+
+@Composable
+fun QuizApp() {
+    var selectedLevel by remember { mutableStateOf<QuizLevel?>(null) }
+    var currentQuestion by remember { mutableIntStateOf(0) }
+    var selectedAnswer by remember { mutableStateOf("") }
+    var score by remember { mutableIntStateOf(0) }
+    var quizFinished by remember { mutableStateOf(false) }
+    var enabledButton by remember { mutableStateOf(false) }
+
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        if (selectedLevel == null) {
+            Text(text = "Выберите уровень сложности:")
+            quizLevels.forEach { level ->
+                Button(onClick = {
+                    selectedLevel = level
+                    currentQuestion = 0
+                    score = 0
+                    quizFinished = false
+                }) {
+                    Text(text = level.name)
+                }
+            }
+        } else if (!quizFinished) {
+            Text(text = "Вопрос: ${selectedLevel!!.questions[currentQuestion].text}")
+            Spacer(modifier = Modifier.height(12.dp))
+
+            selectedLevel!!.questions[currentQuestion].options.forEach { option ->
+                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(
+                        selected = selectedAnswer == option,
+                        onClick = {
+                            selectedAnswer = option
+                            enabledButton = true
+                        }
+                    )
+                    Text(text = option)
+                }
+            }
+
+            Button(onClick = {
+                if (selectedAnswer == selectedLevel!!.questions[currentQuestion].correctAnswer) {
+                    score++
+                }
+                if (currentQuestion < selectedLevel!!.questions.size - 1) {
+                    currentQuestion++
+                } else {
+                    quizFinished = true
+                }
+                selectedAnswer = ""
+                enabledButton = false
+            }, enabled = enabledButton) {
+                Text(text = if (currentQuestion < selectedLevel!!.questions.size - 1) "Следующий вопрос" else "Закончить")
+            }
+        } else {
+            Text(text = "Ваш результат: $score/${selectedLevel!!.questions.size}")
+            Button(onClick = {
+                selectedLevel = null
+                currentQuestion = 0
+                score = 0
+                selectedAnswer = ""
+            }) {
+                Text(text = "Перезапустить квиз")
+            }
+        }
+    }
+}
+
+using System;
+using System.Threading;
+
+class TrafficLight
+{
+    private enum LightColor
+    {
+        Red,
+        Yellow, 
+        Green 
+    }
+
+    private LightColor currentColor;
+    private LightColor previousColor;
+    private bool isRunning;
+
+    private const int RedDuration = 5000;
+    private const int YellowDuration = 2000;
+    private const int GreenDuration = 10000;
+
+    public TrafficLight()
+    {
+        currentColor = LightColor.Red;
+        previousColor = LightColor.Green;
+        isRunning = false;
+    }
+
+    public void Start()
+    {
+        if (isRunning) return;
+
+        isRunning = true;
+        Console.WriteLine("Светофор начал работу");
+
+        while (isRunning)
+        {
+            switch (currentColor)
+            {
+                case LightColor.Red:
+                    Notify("Красный свет! Стоять!", ConsoleColor.Red);
+                    Thread.Sleep(RedDuration);
+                    previousColor = currentColor;
+                    currentColor = LightColor.Yellow;
+                    break;
+
+                case LightColor.Yellow:
+                    if (previousColor == LightColor.Red)
+                    {
+                        Notify("Жёлтый свет! Приготовиться!", ConsoleColor.Yellow);
+                    }
+                    else
+                    {
+                        Notify("Жёлтый свет! Внимание!", ConsoleColor.Yellow);
+                    }
+                    Thread.Sleep(YellowDuration);
+                    previousColor = currentColor;
+                    currentColor = (previousColor == LightColor.Yellow &&
+                                   previousColor == LightColor.Red) ?
+                                   LightColor.Green : LightColor.Red;
+                    break;
+
+                case LightColor.Green:
+                    Notify("Зелёный свет! Идти!", ConsoleColor.Green);
+                    Thread.Sleep(GreenDuration);
+                    previousColor = currentColor;
+                    currentColor = LightColor.Yellow;
+                    break;
+            }
+        }
+    }
+
+    public void Stop()
+    {
+        isRunning = false;
+        Console.WriteLine("Светофор остановлен");
+    }
+
+    private void Notify(string message, ConsoleColor color)
+    {
+        Console.ForegroundColor = color;
+        Console.WriteLine($"[{DateTime.Now:T}] {message}");
+        Console.ResetColor();
+
+        if (message.Contains("Зелёный"))
+        {
+            Console.WriteLine("Водители: Можно ехать!");
+            Console.WriteLine("Пешеходы: Можно переходить дорогу!");
+        }
+        else if (message.Contains("Красный"))
+        {
+            Console.WriteLine("Водители: Остановиться перед стоп-линией!");
+            Console.WriteLine("Пешеходы: Ожидать зелёного сигнала!");
+        }
+        else if (message.Contains("Жёлтый"))
+        {
+            Console.WriteLine("Водители: Приготовиться к движению/остановке!");
+            Console.WriteLine("Пешеходы: Завершить переход или остаться на месте!");
+        }
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        TrafficLight trafficLight = new TrafficLight();
+
+        Console.WriteLine("Управление светофором");
+        Console.WriteLine("Нажмите Enter для запуска...");
+        Console.ReadLine();
+
+        Thread trafficLightThread = new Thread(trafficLight.Start);
+        trafficLightThread.Start();
+
+        Console.WriteLine("Светофор работает. Нажмите Enter для остановки...");
+        Console.ReadLine();
+
+        trafficLight.Stop();
+        trafficLightThread.Join();
+
+        Console.WriteLine("Программа завершена.");
+    }
+}
+
+
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+class Task {
+private:
+    string _title;
+    string _description;
+    string _timeDeadline;
+    int _priority; 
+    bool _isActive; 
+
+public:
+    string getTitle() {
+        return _title;
+    }
+    void setTitle(string title) {
+        _title = title;
+    }
+    string getDescription() {
+        return _description;
+    }
+    void setDescription(string description) {
+        _description = description;
+    }
+    string getTimeDeadline() {
+        return _timeDeadline;
+    }
+    void setTimeDeadline(string timeDeadline) {
+        _timeDeadline = timeDeadline;
+    }
+    int getPriority() {
+        return _priority;
+    }
+    void setPriority(int priority) {
+        _priority = priority;
+    }
+    bool getIsActive() {
+        return _isActive;
+    }
+    void setIsActive(bool isActive) {
+        _isActive = isActive;
+    }
+
+    Task() {
+        _title = "Undefined";
+        _description = "Undefined";
+        _timeDeadline = "Undefined";
+        _priority = 0;
+        _isActive = true;
+    }
+
+    Task(string title,
+        string description,
+        string timeDeadline,
+        int priority,
+        bool isActive)
+    {
+        _title = title;
+        _description = description;
+        _timeDeadline = timeDeadline;
+        _priority = priority;
+        _isActive = isActive;
+    }
+
+    void display() {
+        switch (_priority) {
+        case 0:
+            cout << "\033[32m"; 
+            break;
+        case 1:
+            cout << "\033[33m"; 
+            break;
+        case 2:
+            cout << "\033[31m"; 
+            break;
+        default:
+            cout << "\033[37m"; 
+            break;
+        }
+        cout << _title << endl << _description << endl << _timeDeadline << endl;
+        cout << "\033[0m";
+    }
+
+    void pushToArchive() {
+        _timeDeadline = "Бессрочно";
+        _priority = 3; 
+        _isActive = false;
+    }
+};
+
+class TaskManager {
+private:
+    Task* _tasks;
+    int _sizeTasks;
+
+public:
+    TaskManager() {
+        _tasks = new Task[0];
+        _sizeTasks = 0;
+    }
+
+    void pushTask(Task task) {
+        Task* newTasks = new Task[_sizeTasks + 1];
+
+        for (int i = 0; i < _sizeTasks; i++) {
+            newTasks[i] = _tasks[i];
+        }
+        newTasks[_sizeTasks] = task;
+        _sizeTasks++;
+        delete[] _tasks;
+        _tasks = newTasks;
+    }
+
+    void displayActiveTasks() {
+        for (int i = 0; i < _sizeTasks; i++) {
+            if (_tasks[i].getIsActive())
+                _tasks[i].display();
+        }
+    }
+
+    void displayArchiveTasks() {
+        for (int i = 0; i < _sizeTasks; i++) {
+            if (!_tasks[i].getIsActive())
+                _tasks[i].display();
+        }
+    }
+
+    void addTaskFromKeyboard() {
+        string title;
+        string description;
+        string timeDeadline;
+        int priority;
+
+        cout << "Введите название: ";
+        cin >> title;
+        cout << "Введите описание: ";
+        cin >> description;
+        cout << "Введите время дедлайна: ";
+        cin >> timeDeadline;
+        cout << "Введите приоритет (0 - зеленый, 1 - желтый, 2 - красный): ";
+        cin >> priority;
+
+        Task newTask = Task(title, description, timeDeadline, priority, true);
+        pushTask(newTask);
+    }
+
+    void sortTasksByPriority() {
+        for (int i = 0; i < _sizeTasks - 1; i++) {
+            for (int j = 0; j < _sizeTasks - i - 1; j++) {
+                if (_tasks[j].getPriority() < _tasks[j + 1].getPriority()) {
+                    Task temp = _tasks[j];
+                    _tasks[j] = _tasks[j + 1];
+                    _tasks[j + 1] = temp;
+                }
+            }
+        }
+    }
+
+    void moveTaskToArchive(int index) {
+        if (index >= 0 && index < _sizeTasks) {
+            _tasks[index].pushToArchive();
+            cout << "Задача перемещена в архив." << endl;
+        }
+        else {
+            cout << "Неверный индекс задачи." << endl;
+        }
+    }
+
+    void startManager() {
+        bool flag = true;
+        while (flag) {
+            system("cls");
+            int choice;
+            cout << "Введите действие: " << endl;
+            cout << "1. Вывести активные задачи" << endl;
+            cout << "2. Вывести архивные задачи" << endl;
+            cout << "3. Добавить задачу" << endl;
+            cout << "4. Отсортировать задачи по приоритету" << endl;
+            cout << "5. Переместить задачу в архив" << endl;
+            cout << "6. Выйти из программы" << endl;
+            cin >> choice;
+
+            switch (choice) {
+            case 1:
+                displayActiveTasks();
+                break;
+            case 2:
+                displayArchiveTasks();
+                break;
+            case 3:
+                addTaskFromKeyboard();
+                break;
+            case 4:
+                sortTasksByPriority();
+                cout << "Задачи отсортированы по приоритету." << endl;
+                break;
+            case 5: {
+                int index;
+                cout << "Введите индекс задачи для перемещения в архив: ";
+                cin >> index;
+                moveTaskToArchive(index);
+                break;
+            }
+            case 6:
+                flag = false;
+                break;
+            default:
+                cout << "Неверный выбор. Попробуйте снова." << endl;
+                break;
+            }
+            system("pause"); 
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    TaskManager window = TaskManager();
+    window.pushTask(Task("Название 1", "Описание 1", "10.02.2025 10:25", 0, true));
+    window.pushTask(Task("Название 2", "Описание 2", "10.02.2025 10:30", 1, true));
+    window.pushTask(Task("Название 3", "Описание 3", "10.02.2025 10:40", 2, true));
+    window.startManager();
+}
+
 
 /*
-//Задание:
+Задание 1
+1. Опишите класс «Конус».
+Данные: координаты центра основания, радиус основания, высота.
+Конструкторы: конструктор по умолчанию, конструктор конуса с центром в начале координат, конструктор произвольного конуса.
+2. Определите методы: вычисление площади поверхности, вычисление
+объема. Для ввода и вывода на экран перегрузите операции >> и <<.
+3. Объявите несколько конусов с использованием различных конструкторов, найдите площадь поверхности и объем каждого.
 
-
+Задание 2
+1. Опишите класс «Усеченный конус», производный от конуса.
+2. Определите конструкторы по умолчанию и с параметрами.
+3. Переопределите методы вычисления площади поверхности и объема 
+для усеченного конуса с использованием методов базового класса.
+4. Для ввода и вывода на экран перегрузите операции >> и <<.
+5. Объявите несколько усеченных конусов, выведите на экран их площади поверхности и объемы.
+6. Определите методы сравнения конусов.
+7. Определите несколько усеченных конусов, наследующих одному базовому конусу.
 */
-
 /*
-//Задание:
 
 
+#include <iostream>
+#include <cmath> 
+using namespace std;
+
+const double PI = acos(-1.0);
+
+class Cone {
+private:
+    double x;  
+    double y;
+    double radius;
+    double height; 
+
+public:
+    Cone() : x(0), y(0), radius(0), height(0) {}
+
+    Cone(double r, double h) : x(0), y(0), radius(r), height(h) {}
+
+    Cone(double _x, double _y, double r, double h) : x(_x), y(_y), radius(r), height(h) {}
+
+    double volume() const {
+        return PI * pow(radius, 2) * height / 3.0;
+    }
+
+    double surfaceArea() const {
+        double slantHeight = sqrt(pow(height, 2) + pow(radius, 2));
+        return PI * radius * (radius + slantHeight);
+    }
+
+    friend istream& operator>>(istream& in, Cone& cone) {
+        in >> cone.x >> cone.y >> cone.radius >> cone.height;
+        return in;
+    }
+
+    friend ostream& operator<<(ostream& out, const Cone& cone) {
+        out << "Center: (" << cone.x << ", " << cone.y << "), Radius: "
+            << cone.radius << ", Height: " << cone.height << endl;
+        return out;
+    }
+};
+
+int main() {
+    Cone c1; 
+    Cone c2(5, 10);
+    Cone c3(4, 6, 7, 12);
+
+    cout << "Cone 1:" << endl;
+    cout << c1 << endl;
+    cout << "Volume: " << c1.volume() << endl;
+    cout << "Surface Area: " << c1.surfaceArea() << endl << endl;
+
+    cout << "Cone 2:" << endl;
+    cout << c2 << endl;
+    cout << "Volume: " << c2.volume() << endl;
+    cout << "Surface Area: " << c2.surfaceArea() << endl << endl;
+
+    cout << "Cone 3:" << endl;
+    cout << c3 << endl;
+    cout << "Volume: " << c3.volume() << endl;
+    cout << "Surface Area: " << c3.surfaceArea() << endl;
+
+    return 0;
+}
+*/
+
+
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+const double PI = acos(-1.0);
+
+class Cone {
+protected:
+    double x; 
+    double y;
+    double radius; 
+    double height; 
+
+public:
+    Cone() : x(0), y(0), radius(0), height(0) {}
+
+    Cone(double r, double h) : x(0), y(0), radius(r), height(h) {}
+
+    Cone(double _x, double _y, double r, double h) : x(_x), y(_y), radius(r), height(h) {}
+
+    virtual double volume() const {
+        return PI * pow(radius, 2) * height / 3.0;
+    }
+
+    virtual double surfaceArea() const {
+        double slantHeight = sqrt(pow(height, 2) + pow(radius, 2));
+        return PI * radius * (slantHeight + radius);
+    }
+
+    friend istream& operator>>(istream& in, Cone& cone) {
+        in >> cone.x >> cone.y >> cone.radius >> cone.height;
+        return in;
+    }
+
+    friend ostream& operator<<(ostream& out, const Cone& cone) {
+        out << "Center: (" << cone.x << ", " << cone.y << "), Radius: "
+            << cone.radius << ", Height: " << cone.height << endl;
+        return out;
+    }
+};
+
+class TruncatedCone : public Cone {
+private:
+    double upperRadius;
+    double truncatedHeight; 
+
+public:
+    TruncatedCone() : Cone(), upperRadius(0), truncatedHeight(0) {}
+
+    TruncatedCone(double _x, double _y, double lowerR, double upperR, double h)
+        : Cone(_x, _y, lowerR, h), upperRadius(upperR), truncatedHeight(h) {}
+
+    double volume() const override {
+        double fullConeVolume = Cone::volume();
+        double upperConeVolume = PI * pow(upperRadius, 2) * truncatedHeight / 3.0;
+        return fullConeVolume - upperConeVolume;
+    }
+
+    double surfaceArea() const override {
+        double slantHeight = sqrt(pow(truncatedHeight, 2) + pow(radius - upperRadius, 2));
+        return PI * (radius * (slantHeight + radius) + upperRadius * (slantHeight + upperRadius));
+    }
+
+    friend istream& operator>>(istream& in, TruncatedCone& tc) {
+        in >> static_cast<Cone&>(tc) >> tc.upperRadius >> tc.truncatedHeight;
+        return in;
+    }
+
+    friend ostream& operator<<(ostream& out, const TruncatedCone& tc) {
+        out << static_cast<const Cone&>(tc) << "Upper Radius: " << tc.upperRadius
+            << ", Truncated Height: " << tc.truncatedHeight << endl;
+        return out;
+    }
+
+    bool isLargerThan(const TruncatedCone& other) const {
+        return volume() > other.volume();
+    }
+};
+
+int main() {
+    TruncatedCone t1(0, 0, 10, 8, 15);
+    TruncatedCone t2(5, 5, 20, 16, 25);
+    TruncatedCone t3(t1);
+
+    cout << "Truncated Cone 1:" << endl;
+    cout << t1 << endl;
+    cout << "Volume: " << t1.volume() << endl;
+    cout << "Surface Area: " << t1.surfaceArea() << endl << endl;
+
+    cout << "Truncated Cone 2:" << endl;
+    cout << t2 << endl;
+    cout << "Volume: " << t2.volume() << endl;
+    cout << "Surface Area: " << t2.surfaceArea() << endl << endl;
+
+    cout << "Truncated Cone 3 (copy of T1):" << endl;
+    cout << t3 << endl;
+    cout << "Volume: " << t3.volume() << endl;
+    cout << "Surface Area: " << t3.surfaceArea() << endl << endl;
+
+    if (t1.isLargerThan(t2)) {
+        cout << "Усеченный конус 1 больше по объему чем усеченный конус 2." << endl;
+    }
+    else {
+        cout << "Усеченный конус 2 больше по объему чем усеченный конус 1." << endl;
+    }
+
+    return 0;
+}
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Challenge {
+protected:
+    string name;
+    int difficulty;
+
+public:
+    Challenge() : name(""), difficulty(0) {}
+    Challenge(const string& name, int difficulty) : name(name), difficulty(checkNumber(difficulty)) {}
+
+    int checkNumber(int number) {
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(1000, '\n');
+            throw "Ошибка: введено не число.";
+        }
+        return number;
+    }
+
+    bool operator==(const Challenge& other) const {
+        return name == other.name && difficulty == other.difficulty;
+    }
+
+    Challenge operator+(const Challenge& other) const {
+        return Challenge(name + " + " + other.name, difficulty + other.difficulty);
+    }
+
+    Challenge& operator++() {
+        ++difficulty;
+        return *this;
+    }
+
+    virtual void print() const {
+        cout << "Испытание: " << name << ", Сложность: " << difficulty << endl;
+    }
+
+    virtual ~Challenge() = default;
+};
+
+class Test : public Challenge {
+private:
+    int numberOfQuestions;
+
+public:
+    Test() : Challenge(), numberOfQuestions(0) {}
+    Test(const string& name, int difficulty, int numberOfQuestions)
+        : Challenge(name, difficulty), numberOfQuestions(checkNumber(numberOfQuestions)) {}
+
+    bool operator==(const Test& other) const {
+        return Challenge::operator==(other) && numberOfQuestions == other.numberOfQuestions;
+    }
+
+    Test operator+(const Test& other) const {
+        return Test(name + " + " + other.name, difficulty + other.difficulty, numberOfQuestions + other.numberOfQuestions);
+    }
+
+    Test& operator++() {
+        Challenge::operator++();
+        ++numberOfQuestions;
+        return *this;
+    }
+
+    void print() const override {
+        cout << "Тест: " << name << ", Сложность: " << difficulty << ", Количество вопросов: " << numberOfQuestions << endl;
+    }
+};
+
+class Exam : public Challenge {
+protected:
+    int duration;
+
+public:
+    Exam() : Challenge(), duration(0) {}
+    Exam(const string& name, int difficulty, int duration)
+        : Challenge(name, difficulty), duration(checkNumber(duration)) {}
+
+    bool operator==(const Exam& other) const {
+        return Challenge::operator==(other) && duration == other.duration;
+    }
+
+    Exam operator+(const Exam& other) const {
+        return Exam(name + " + " + other.name, difficulty + other.difficulty, duration + other.duration);
+    }
+
+    Exam& operator++() {
+        Challenge::operator++();
+        ++duration;
+        return *this;
+    }
+
+    void print() const override {
+        cout << "Экзамен: " << name << ", Сложность: " << difficulty << ", Продолжительность: " << duration << " минут." << endl;
+    }
+};
+
+class FinalExam : public Exam {
+private:
+    int minimumScore;
+
+public:
+    FinalExam() : Exam(), minimumScore(0) {}
+    FinalExam(const string& name, int difficulty, int duration, int minimumScore)
+        : Exam(name, difficulty, duration), minimumScore(checkNumber(minimumScore)) {}
+
+    bool operator==(const FinalExam& other) const {
+        return Exam::operator==(other) && minimumScore == other.minimumScore;
+    }
+
+    FinalExam operator+(const FinalExam& other) const {
+        return FinalExam(name + " + " + other.name, difficulty + other.difficulty, duration + other.duration, minimumScore + other.minimumScore);
+    }
+
+    FinalExam& operator++() {
+        Exam::operator++();
+        ++minimumScore;
+        return *this;
+    }
+
+    void print() const override {
+        cout << "Выпускной экзамен: " << name << ", Сложность: " << difficulty << ", Продолжительность: " << duration << " минут, Минимальный балл: " << minimumScore << endl;
+    }
+};
+
+void printMenu() {
+    cout << " _________________________________________\n";
+    cout << "|                                         |\n";
+    cout << "|                   МЕНЮ                  |\n";
+    cout << "|_________________________________________|\n";
+    cout << "|                                         |\n";
+    cout << "| 1. Добавить новый элемент               |\n";
+    cout << "| 2. Удалить элемент по индексу           |\n";
+    cout << "| 3. Вывод всех элементов                 |\n";
+    cout << "| 4. Сравнение двух элементов на равенство|\n";
+    cout << "| 5. Завершение работы                    |\n";
+    cout << "|_________________________________________|\n";
+    cout << "Выберите действие: ";
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    const int MAX_ELEMENTS = 100;
+    Challenge* challenges[MAX_ELEMENTS];
+    int count = 0;
+    int choice;
+
+    do {
+        printMenu();
+        cin >> choice;
+
+        try {
+            switch (choice) {
+            case 1: {
+                if (count >= MAX_ELEMENTS) {
+                    cout << "Достигнуто максимальное количество элементов.\n";
+                    break;
+                }
+
+                int type;
+                cout << "Выберите тип элемента (1 - Испытание, 2 - Тест, 3 - Экзамен, 4 - Выпускной экзамен): ";
+                cin >> type;
+
+                string name;
+                int difficulty;
+                cout << "Введите название: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Введите сложность: ";
+                cin >> difficulty;
+
+                switch (type) {
+                case 1:
+                    challenges[count++] = new Challenge(name, difficulty);
+                    break;
+                case 2: {
+                    int numberOfQuestions;
+                    cout << "Введите количество вопросов: ";
+                    cin >> numberOfQuestions;
+                    challenges[count++] = new Test(name, difficulty, numberOfQuestions);
+                    break;
+                }
+                case 3: {
+                    int duration;
+                    cout << "Введите продолжительность (в минутах): ";
+                    cin >> duration;
+                    challenges[count++] = new Exam(name, difficulty, duration);
+                    break;
+                }
+                case 4: {
+                    int duration, minimumScore;
+                    cout << "Введите продолжительность (в минутах): ";
+                    cin >> duration;
+                    cout << "Введите минимальный балл: ";
+                    cin >> minimumScore;
+                    challenges[count++] = new FinalExam(name, difficulty, duration, minimumScore);
+                    break;
+                }
+                default:
+                    cout << "Неверный тип элемента.\n";
+                    break;
+                }
+                break;
+            }
+            case 2: {
+                int index;
+                cout << "Введите индекс элемента для удаления: ";
+                cin >> index;
+                if (index >= 0 && index < count) {
+                    delete challenges[index];
+                    for (int i = index; i < count - 1; ++i) {
+                        challenges[i] = challenges[i + 1];
+                    }
+                    count--;
+                    cout << "Элемент удален.\n";
+                }
+                else {
+                    cout << "Неверный индекс.\n";
+                }
+                break;
+            }
+            case 3: {
+                for (int i = 0; i < count; ++i) {
+                    cout << "Элемент " << i << ":\n";
+                    challenges[i]->print();
+                }
+                break;
+            }
+            case 4: {
+                int index1, index2;
+                cout << "Введите индексы двух элементов для сравнения: ";
+                cin >> index1 >> index2;
+                if (index1 >= 0 && index1 < count && index2 >= 0 && index2 < count) {
+                    if (*challenges[index1] == *challenges[index2]) {
+                        cout << "Элементы равны.\n";
+                    }
+                    else {
+                        cout << "Элементы не равны.\n";
+                    }
+                }
+                else {
+                    cout << "Неверные индексы.\n";
+                }
+                break;
+            }
+            case 5:
+                cout << "Завершение работы.\n";
+                break;
+            default:
+                cout << "Неверный выбор.\n";
+                break;
+            }
+        }
+        catch (const char* error) {
+            cout << error << endl;
+        }
+    } while (choice != 5);
+
+    for (int i = 0; i < count; ++i) {
+        delete challenges[i];
+    }
+
+    return 0;
+}
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+
+class Wheel {
+public:
+    int size;
+    string type;
+
+    Wheel(int s, string t) : size(s), type(t) {}
+    virtual ~Wheel() {} 
+};
+
+class Engine {
+public:
+    int power;
+    string fuelType;
+
+    Engine(int p, string ft) : power(p), fuelType(ft) {}
+    virtual ~Engine() {} 
+};
+
+class Transmission {
+public:
+    string type;
+
+    Transmission(string t) : type(t) {}
+    virtual ~Transmission() {}
+};
+
+class Suspension {
+public:
+    string type;
+
+    Suspension(string t) : type(t) {}
+    virtual ~Suspension() {}
+};
+
+
+class Car : public Wheel, public Engine, public Transmission, public Suspension {
+public:
+    string model;
+
+    Car(
+        string m,
+        int wheelSize, string wheelType,
+        int enginePower, string engineFuelType,
+        string transmissionType,
+        string suspensionType
+    ) :
+        Wheel(wheelSize, wheelType),
+        Engine(enginePower, engineFuelType),
+        Transmission(transmissionType),
+        Suspension(suspensionType),
+        model(m)
+    {}
+
+    void print() {
+        cout << "Model: " << model << "\n";
+        cout << "Wheel Size: " << size << ", Type: " << Wheel::type << "\n"; 
+        cout << "Engine Power: " << power << ", Fuel Type: " << fuelType << "\n";
+        cout << "Transmission Type: " << Transmission::type << "\n";
+        cout << "Suspension Type: " << Suspension::type << "\n";
+    }
+};
+
+int main() {
+    Car car("Toyota Corolla", 17, "Alloy", 150, "Gasoline", "Automatic", "Independent");
+    car.print();
+
+    return 0;
+}
+
+
+#include <iostream>
+#include <vector>
+#include <conio.h>
+
+using namespace std;
+
+class UIElement {
+public:
+    static int count;
+    virtual void draw() {};
+};
+
+int UIElement::count = 0;
+
+int resultAgeConfirm = 1;
+
+class UIElementButtons : public UIElement {
+public:
+    bool isFocused;
+
+    void draw() override {
+
+    }
+};
+
+class UIElementComposable : public UIElement {
+public:
+
+    void draw() override {
+
+    }
+};
+
+class Button;
+
+vector<Button> listt;
+
+bool check = false;
+
+class Button : public UIElementButtons {
+public:
+    int size_x;
+    int size_y;
+    string text;
+    int padding_horizontal;
+    bool checkVal = false;
+    bool target = false;
+    string horizontalAlign;
+    string verticalAlign;
+
+    bool checktarget()
+    {
+        return this->target;
+    }
+
+    void swapTarget()
+    {
+        (this->target) ? this->target = false : this->target = true;
+    }
+
+    Button() {
+        size_x = 10;
+        size_y = 3;
+        text = "Button";
+        padding_horizontal = 1;
+        checkVal = false;
+        horizontalAlign = "left";
+        verticalAlign = "top";
+    }
+
+    Button(int size_x, int size_y, string text, int padding_horizontal = 1, string horizontalAlign = "left", string verticalAlign = "top") {
+        this->size_x = size_x + padding_horizontal;
+        this->size_y = size_y;
+        this->text = text;
+        this->padding_horizontal = padding_horizontal;
+        this->checkVal = checkVal;
+        this->horizontalAlign = horizontalAlign;
+        this->verticalAlign = verticalAlign;
+
+        if (text.size() + padding_horizontal > size_x) {
+            this->size_x = text.size() + 3 + padding_horizontal;
+        }
+    }
+
+    void draw() override {
+        string textBuffer = this->text;
+
+        // Calculate horizontal padding
+        int textLength = text.size();
+        int totalPadding = size_x - textLength - 2; // 2 for borders
+        int leftPadding = 0;
+        int rightPadding = 0;
+
+        if (horizontalAlign == "center") {
+            leftPadding = totalPadding / 2;
+            rightPadding = totalPadding - leftPadding;
+        }
+        else if (horizontalAlign == "right") {
+            leftPadding = totalPadding;
+        }
+        else {
+            rightPadding = totalPadding;
+        }
+
+        // Calculate vertical padding
+        int totalVerticalPadding = size_y - 1; // 1 for the text line
+        int topPadding = 0;
+        int bottomPadding = 0;
+
+        if (verticalAlign == "center") {
+            topPadding = totalVerticalPadding / 2;
+            bottomPadding = totalVerticalPadding - topPadding;
+        }
+        else if (verticalAlign == "bottom") {
+            topPadding = totalVerticalPadding;
+        }
+        else {
+            bottomPadding = totalVerticalPadding;
+        }
+
+        // Draw the button
+        for (int i = 0; i < size_y; i++) {
+            for (int j = 0; j < size_x; j++) {
+                if (i == 0 || i == size_y - 1) {
+                    cout << '*';
+                    continue;
+                }
+
+                if ((i == size_y / 2 && j == size_y - 1) && (text == listt[resultAgeConfirm - 1].text))
+                {
+                    std::cout << " *\t<<================";
+                    continue;
+                }
+
+                if (j == 0 || j == size_x - 1) {
+                    cout << '*';
+                    continue;
+                }
+
+                if (i == topPadding + 1 && j > leftPadding + 1 && textBuffer.size() > 0) {
+                    cout << textBuffer[0];
+                    textBuffer.erase(0, 1);
+                    continue;
+                }
+
+                cout << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+class Column : public UIElementComposable {
+public:
+    vector<UIElement*> components;
+    string horizontalAlign; // "left", "center", "right"
+    string verticalAlign;   // "top", "center", "bottom"
+
+    Column(vector<UIElement*> components, string horizontalAlign = "left", string verticalAlign = "top") {
+        for (int i = 0; i < components.size(); i++) {
+            this->components.push_back(components[i]);
+        }
+        this->horizontalAlign = horizontalAlign;
+        this->verticalAlign = verticalAlign;
+    }
+
+    void draw() override {
+        for (auto& component : components) {
+            component->draw();
+        }
+    }
+};
+
+class Row : public UIElementComposable {
+public:
+    vector<UIElement*> components;
+    string horizontalAlign; // "left", "center", "right"
+    string verticalAlign;   // "top", "center", "bottom"
+
+    Row(vector<UIElement*> components, string horizontalAlign = "left", string verticalAlign = "top") {
+        for (int i = 0; i < components.size(); i++) {
+            this->components.push_back(components[i]);
+        }
+        this->horizontalAlign = horizontalAlign;
+        this->verticalAlign = verticalAlign;
+    }
+
+    void draw() override {
+        for (auto& component : components) {
+            component->draw();
+            cout << " "; // Добавляем пробел между элементами
+        }
+        cout << endl;
+    }
+};
+
+class Checkbox : public UIElementButtons {
+public:
+    bool isChecked;
+    string label;
+
+    Checkbox(string label, bool isChecked = false) {
+        this->label = label;
+        this->isChecked = isChecked;
+    }
+
+    void toggle() {
+        isChecked = !isChecked;
+    }
+
+    void draw() override {
+        string checkboxState = isChecked ? "[X]" : "[ ]";
+        cout << checkboxState << " " << label << endl;
+    }
+};
+
+class Window {
+public:
+    int size_x;
+    int size_y;
+    UIElement* component;
+
+    Window(int size_x, int size_y, UIElement* component) {
+        this->size_x = size_x;
+        this->size_y = size_y;
+        this->component = component;
+    }
+
+    void draw() {
+        component->draw();
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    bool sert = false;
+    do
+    {
+        int valueAge = 0;
+
+        if (!sert)
+        {
+            Button checkAgeList = Button(30, 15, "Are u over 18 years old????", false, "center", "center");
+            Button valueResultTrue = Button(10, 10, "Yes", true, "center", "center");
+            Button valueResultFalse = Button(10, 10, "No", true, "center", "center");
+
+            Column ageCheck({ &checkAgeList, &valueResultTrue, &valueResultFalse }, "center", "center");
+
+            listt.push_back(valueResultTrue);
+            listt.push_back(valueResultFalse);
+
+            Window screen1(100, 100, &ageCheck);
+            screen1.draw();
+        }
+        if (!sert)
+        {
+            valueAge = _getch();
+
+            switch (valueAge)
+            {
+            case 13:
+                if (resultAgeConfirm != 2)
+                    sert = true;
+                break;
+            case 72:
+                if (resultAgeConfirm > 1)
+                {
+                    resultAgeConfirm--;
+                }
+                break;
+            case 75:
+                if (resultAgeConfirm > 1)
+                {
+                    resultAgeConfirm--;
+                }
+                break;
+            case 80:
+                if (resultAgeConfirm < 2)
+                    resultAgeConfirm++;
+                break;
+            case 77:
+                if (resultAgeConfirm < 2)
+                    resultAgeConfirm++;
+                break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            Button button1 = Button(7, 5, "First Button", false, "center", "center");
+            Button button2 = Button(9, 5, "Second Button", false, "center", "center");
+            Button button3 = Button(11, 5, "Third Button", false, "center", "center");
+
+            Checkbox checkbox1 = Checkbox("Option 1", true);
+            Checkbox checkbox2 = Checkbox("Option 2", false);
+
+            Row row({ &button1, &button2, &button3, &checkbox1, &checkbox2 }, "center", "center");
+
+            Window screen(100, 100, &row);
+            screen.draw();
+            break;
+        }
+        system("CLS");
+    } while (true);
+}
+
+
+
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import kotlin.random.Random
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            GuessTheNumberGame()
+        }
+    }
+}
+
+@Composable
+fun GuessTheNumberGame() {
+    var targetNumber by remember { mutableStateOf(Random.nextInt(1, 101)) }
+    var userGuess by remember { mutableStateOf("") }
+    var message by remember { mutableStateOf("") }
+    var attempts by remember { mutableStateOf(0) }
+
+    fun checkGuess() {
+        val guess = userGuess.toIntOrNull()
+        if (guess != null) {
+            attempts++
+            when {
+                guess < targetNumber -> message = "Загаданное число больше"
+                guess > targetNumber -> message = "Загаданное число меньше"
+                else -> message = "Поздравляем! Вы угадали число за $attempts попыток."
+            }
+        } else {
+            message = "Введите корректное число"
+        }
+    }
+
+    fun resetGame() {
+        targetNumber = Random.nextInt(1, 101)
+        userGuess = ""
+        message = ""
+        attempts = 0
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Угадай число от 1 до 100")
+        TextField(
+            value = userGuess,
+            onValueChange = { userGuess = it },
+            label = { Text("Ваше число") },
+            modifier = Modifier.padding(8.dp)
+        )
+        Button(
+            onClick = { checkGuess() },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = "Проверить")
+        }
+        Text(text = message, modifier = Modifier.padding(8.dp))
+        Text(text = "Попыток: $attempts", modifier = Modifier.padding(8.dp))
+        Button(
+            onClick = { resetGame() },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Text(text = "Новая игра")
+        }
+    }
+}
+
+
+
+
+using System;
+
+public class Pizza
+{
+    public string Dough { get; set; }
+    public string Sauce { get; set; }
+    public string Topping { get; set; }
+
+    public void Display() => Console.WriteLine($"Pizza: Dough={Dough}, Sauce={Sauce}, Topping={Topping}");
+}
+
+public interface IPizzaBuilder
+{
+    void SetDough(string dough);
+    void SetSauce(string sauce);
+    void SetTopping(string topping);
+    Pizza GetPizza();
+}
+
+
+public class MargheritaPizzaBuilder : IPizzaBuilder
+{
+    private Pizza _pizza = new Pizza();
+
+    public void SetDough(string dough) => _pizza.Dough = dough;
+    public void SetSauce(string sauce) => _pizza.Sauce = sauce;
+    public void SetTopping(string topping) => _pizza.Topping = "Cheese and Tomato"; 
+    public Pizza GetPizza() => _pizza;
+}
+
+public class PepperoniPizzaBuilder : IPizzaBuilder
+{
+    private Pizza _pizza = new Pizza();
+
+    public void SetDough(string dough) => _pizza.Dough = dough;
+    public void SetSauce(string sauce) => _pizza.Sauce = sauce;
+    public void SetTopping(string topping) => _pizza.Topping = "Pepperoni"; 
+    public Pizza GetPizza() => _pizza;
+}
+
+public class PizzaDirector
+{
+    private IPizzaBuilder _builder;
+
+    public PizzaDirector(IPizzaBuilder builder) => _builder = builder;
+
+    public void ConstructPizza()
+    {
+        _builder.SetDough("Thin Crust");
+        _builder.SetSauce("Tomato Sauce");
+        _builder.SetTopping(""); 
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        IPizzaBuilder margheritaBuilder = new MargheritaPizzaBuilder();
+        PizzaDirector margheritaDirector = new PizzaDirector(margheritaBuilder);
+        margheritaDirector.ConstructPizza();
+        Pizza margheritaPizza = margheritaBuilder.GetPizza();
+        margheritaPizza.Display();
+
+        IPizzaBuilder pepperoniBuilder = new PepperoniPizzaBuilder();
+        PizzaDirector pepperoniDirector = new PizzaDirector(pepperoniBuilder);
+        pepperoniDirector.ConstructPizza();
+        Pizza pepperoniPizza = pepperoniBuilder.GetPizza();
+        pepperoniPizza.Display();
+    }
+}
+
+
+
+
+
+
+using System;
+
+namespace FoodAndDrinkFactory
+{
+    public interface IFood
+    {
+        string Eat();
+    }
+
+    public interface IDrink
+    {
+        string Drink();
+    }
+
+    public class Pizza : IFood
+    {
+        public string Eat()
+        {
+            return "we havaete pizza.";
+        }
+    }
+
+    public class Sushi : IFood
+    {
+        public string Eat()
+        {
+            return "we havaete sushi.";
+        }
+    }
+
+    public class Cola : IDrink
+    {
+        public string Drink()
+        {
+            return "We drinkaete gazirovky.";
+        }
+    }
+
+    public class Juice : IDrink
+    {
+        public string Drink()
+        {
+            return "we havaete juice.";
+        }
+    }
+
+    public abstract class FoodFactory
+    {
+        public abstract IFood CreateFood();
+        public abstract IDrink CreateDrink();
+    }
+
+    public class ItalianFactory : FoodFactory
+    {
+        public override IFood CreateFood()
+        {
+            return new Pizza();
+        }
+
+        public override IDrink CreateDrink()
+        {
+            return new Cola();
+        }
+    }
+
+    public class JapaneseFactory : FoodFactory
+    {
+        public override IFood CreateFood()
+        {
+            return new Sushi();
+        }
+
+        public override IDrink CreateDrink()
+        {
+            return new Juice();
+        }
+    }
+
+    class Program
+    {
+        static void ClientCode(FoodFactory factory)
+        {
+            IFood food = factory.CreateFood();
+            IDrink drink = factory.CreateDrink();
+
+            Console.WriteLine(food.Eat());
+            Console.WriteLine(drink.Drink());
+        }
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("italian kitchen:");
+            FoodFactory italianFactory = new ItalianFactory();
+            ClientCode(italianFactory);
+
+            Console.WriteLine("\n Japanise kitchen:");
+            FoodFactory japaneseFactory = new JapaneseFactory();
+            ClientCode(japaneseFactory);
+        }
+    }
+}
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+
+public interface IDatabaseObserver
+{
+    void Update(string operation, string tableName, object record);
+}
+
+public class Administrator : IDatabaseObserver
+{
+    public string Name { get; }
+
+    public Administrator(string name)
+    {
+        Name = name;
+    }
+
+    public void Update(string operation, string tableName, object record)
+    {
+        Console.WriteLine($"Администратор {Name} получил уведомление: " +
+                          $"Операция '{operation}' выполнена с таблицей '{tableName}'. " +
+                          $"Запись: {record}");
+    }
+}
+
+public sealed class Database : IDisposable
+{
+    private static Database _instance;
+    private static readonly object _lock = new object();
+
+    private readonly List<IDatabaseObserver> _observers = new List<IDatabaseObserver>();
+
+    private Database()
+    {
+        Console.WriteLine("База данных инициализирована");
+    }
+
+    public static Database GetInstance()
+    {
+        if (_instance == null)
+        {
+            lock (_lock)
+            {
+                if (_instance == null)
+                {
+                    _instance = new Database();
+                }
+            }
+        }
+        return _instance;
+    }
+
+    public void Attach(IDatabaseObserver observer)
+    {
+        _observers.Add(observer);
+        Console.WriteLine($"Добавлен наблюдатель: {observer.GetType().Name}");
+    }
+
+    public void Detach(IDatabaseObserver observer)
+    {
+        _observers.Remove(observer);
+        Console.WriteLine($"Удален наблюдатель: {observer.GetType().Name}");
+    }
+
+    private void Notify(string operation, string tableName, object record)
+    {
+        foreach (var observer in _observers)
+        {
+            observer.Update(operation, tableName, record);
+        }
+    }
+
+    public void Insert(string tableName, object record)
+    {
+        Console.WriteLine($"Вставка записи в таблицу {tableName}: {record}");
+        Notify("INSERT", tableName, record);
+    }
+
+    public void Update(string tableName, object record)
+    {
+        Console.WriteLine($"Обновление записи в таблице {tableName}: {record}");
+        Notify("UPDATE", tableName, record);
+    }
+
+    public void Delete(string tableName, object record)
+    {
+        Console.WriteLine($"Удаление записи из таблицы {tableName}: {record}");
+        Notify("DELETE", tableName, record);
+    }
+
+    public void Dispose()
+    {
+        _observers.Clear();
+        Console.WriteLine("База данных закрыта");
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var db = Database.GetInstance();
+
+        var admin1 = new Administrator("Иван Петров");
+        var admin2 = new Administrator("Анна Сидорова");
+
+        db.Attach(admin1);
+        db.Attach(admin2);
+
+        db.Insert("Users", new { Id = 1, Name = "John Doe", Email = "john@example.com" });
+        db.Update("Products", new { Id = 42, Name = "Laptop", Price = 999.99 });
+
+        db.Detach(admin2);
+
+        db.Delete("Orders", new { Id = 101, CustomerId = 1, Amount = 149.99 });
+
+        var db2 = Database.GetInstance();
+        Console.WriteLine($"Один и тот же экземпляр базы данных? {db == db2}");
+
+        db.Dispose();
+    }
+}
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class SmartDevice {
+private:
+    string name;
+    bool isOn;
+
+public:
+    SmartDevice(const string& deviceName) : name(deviceName), isOn(false) {}
+
+    void executeCommand(const string& command) {
+        if (command == "включить") {
+            isOn = true;
+            cout << name << " включен." << endl;
+        }
+        else if (command == "выключить") {
+            isOn = false;
+            cout << name << " выключен." << endl;
+        }
+        else {
+            cout << "Неизвестная команда для " << name << "." << endl;
+        }
+    }
+
+    bool getState() const {
+        return isOn;
+    }
+
+    string getName() const {
+        return name;
+    }
+};
+
+class SmartHome {
+private:
+    SmartDevice** devices; 
+    int capacity;
+    int size;
+
+    void resize() {
+        capacity *= 2;
+        SmartDevice** newDevices = new SmartDevice * [capacity];
+        for (int i = 0; i < size; ++i) {
+            newDevices[i] = devices[i];
+        }
+        delete[] devices;
+        devices = newDevices;
+    }
+
+public:
+    SmartHome() : capacity(2), size(0) {
+        devices = new SmartDevice * [capacity];
+    }
+
+    ~SmartHome() {
+        delete[] devices;
+    }
+
+    void addDevice(SmartDevice* device) {
+        if (size >= capacity) {
+            resize();
+        }
+        devices[size++] = device;
+    }
+
+    void executeCommandOnAllDevices(const string& command) {
+        for (int i = 0; i < size; ++i) {
+            devices[i]->executeCommand(command);
+        }
+    }
+
+    void displayDevicesState() const {
+        for (int i = 0; i < size; ++i) {
+            cout << devices[i]->getName() << " состояние: "
+                << (devices[i]->getState() ? "включен" : "выключен") << endl;
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    SmartDevice lamp("Лампа");
+    SmartDevice thermostat("Термостат");
+
+    SmartHome smartHome;
+    smartHome.addDevice(&lamp);
+    smartHome.addDevice(&thermostat);
+
+    smartHome.executeCommandOnAllDevices("включить");
+    smartHome.displayDevicesState();
+
+    smartHome.executeCommandOnAllDevices("выключить");
+    smartHome.displayDevicesState();
+
+    return 0;
+}
+
+
+
+
+#include <iostream>
+#include <vector>
+#include <conio.h>
+
+using namespace std;
+
+class UIElement {
+public:
+    static int count;
+    virtual void draw() {};
+};
+
+int UIElement::count = 0;
+
+int resultAgeConfirm = 1;
+
+class UIElementButtons : public UIElement {
+public:
+    bool isFocused;
+
+    void draw() override {
+
+    }
+};
+
+class UIElementComposable : public UIElement {
+public:
+
+    void draw() override {
+
+    }
+};
+
+class Button;
+
+vector<Button> listt;
+
+bool check = false;
+
+class Button : public UIElementButtons {
+public:
+    int size_x;
+    int size_y;
+    string text;
+    int padding_horizontal;
+    bool checkVal = false;
+    bool target = false;
+    string horizontalAlign;
+    string verticalAlign;
+
+    bool checktarget()
+    {
+        return this->target;
+    }
+
+    void swapTarget()
+    {
+        (this->target) ? this->target = false : this->target = true;
+    }
+
+    Button() {
+        size_x = 10;
+        size_y = 3;
+        text = "Button";
+        padding_horizontal = 1;
+        checkVal = false;
+        horizontalAlign = "left";
+        verticalAlign = "top";
+    }
+
+    Button(int size_x, int size_y, string text, int padding_horizontal = 1, string horizontalAlign = "left", string verticalAlign = "top") {
+        this->size_x = size_x + padding_horizontal;
+        this->size_y = size_y;
+        this->text = text;
+        this->padding_horizontal = padding_horizontal;
+        this->checkVal = checkVal;
+        this->horizontalAlign = horizontalAlign;
+        this->verticalAlign = verticalAlign;
+
+        if (text.size() + padding_horizontal > size_x) {
+            this->size_x = text.size() + 3 + padding_horizontal;
+        }
+    }
+
+    void draw() override {
+        string textBuffer = this->text;
+
+        // Calculate horizontal padding
+        int textLength = text.size();
+        int totalPadding = size_x - textLength - 2; // 2 for borders
+        int leftPadding = 0;
+        int rightPadding = 0;
+
+        if (horizontalAlign == "center") {
+            leftPadding = totalPadding / 2;
+            rightPadding = totalPadding - leftPadding;
+        }
+        else if (horizontalAlign == "right") {
+            leftPadding = totalPadding;
+        }
+        else {
+            rightPadding = totalPadding;
+        }
+
+        // Calculate vertical padding
+        int totalVerticalPadding = size_y - 1; // 1 for the text line
+        int topPadding = 0;
+        int bottomPadding = 0;
+
+        if (verticalAlign == "center") {
+            topPadding = totalVerticalPadding / 2;
+            bottomPadding = totalVerticalPadding - topPadding;
+        }
+        else if (verticalAlign == "bottom") {
+            topPadding = totalVerticalPadding;
+        }
+        else {
+            bottomPadding = totalVerticalPadding;
+        }
+
+        // Draw the button
+        for (int i = 0; i < size_y; i++) {
+            for (int j = 0; j < size_x; j++) {
+                if (i == 0 || i == size_y - 1) {
+                    cout << '*';
+                    continue;
+                }
+
+                if ((i == size_y / 2 && j == size_y - 1) && (text == listt[resultAgeConfirm - 1].text))
+                {
+                    std::cout << " *\t<<================";
+                    continue;
+                }
+
+                if (j == 0 || j == size_x - 1) {
+                    cout << '*';
+                    continue;
+                }
+
+                if (i == topPadding + 1 && j > leftPadding + 1 && textBuffer.size() > 0) {
+                    cout << textBuffer[0];
+                    textBuffer.erase(0, 1);
+                    continue;
+                }
+
+                cout << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+class Column : public UIElementComposable {
+public:
+    vector<UIElement*> components;
+    string horizontalAlign; // "left", "center", "right"
+    string verticalAlign;   // "top", "center", "bottom"
+
+    Column(vector<UIElement*> components, string horizontalAlign = "left", string verticalAlign = "top") {
+        for (int i = 0; i < components.size(); i++) {
+            this->components.push_back(components[i]);
+        }
+        this->horizontalAlign = horizontalAlign;
+        this->verticalAlign = verticalAlign;
+    }
+
+    void draw() override {
+        for (auto& component : components) {
+            component->draw();
+        }
+    }
+};
+
+class Window {
+public:
+    int size_x;
+    int size_y;
+    UIElement* component;
+
+    Window(int size_x, int size_y, UIElement* component) {
+        this->size_x = size_x;
+        this->size_y = size_y;
+        this->component = component;
+    }
+
+    void draw() {
+        component->draw();
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    bool sert = false;
+    do
+    {
+        int valueAge = 0;
+
+        if (!sert)
+        {
+            Button checkAgeList = Button(30, 15, "Are u over 18 years old????", false, "center", "center");
+            Button valueResultTrue = Button(10, 10, "Yes", true, "center", "center");
+            Button valueResultFalse = Button(10, 10, "No", true, "center", "center");
+
+            Column ageCheck({ &checkAgeList, &valueResultTrue, &valueResultFalse }, "center", "center");
+
+            listt.push_back(valueResultTrue);
+            listt.push_back(valueResultFalse);
+
+            Window screen1(100, 100, &ageCheck);
+            screen1.draw();
+        }
+        if (!sert)
+        {
+            valueAge = _getch();
+
+            switch (valueAge)
+            {
+            case 13:
+                if (resultAgeConfirm != 2)
+                    sert = true;
+                break;
+            case 72:
+                if (resultAgeConfirm > 1)
+                {
+                    resultAgeConfirm--;
+                }
+                break;
+            case 75:
+                if (resultAgeConfirm > 1)
+                {
+                    resultAgeConfirm--;
+                }
+                break;
+            case 80:
+                if (resultAgeConfirm < 2)
+                    resultAgeConfirm++;
+                break;
+            case 77:
+                if (resultAgeConfirm < 2)
+                    resultAgeConfirm++;
+                break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            Button button1 = Button(7, 5, "First Button", false, "center", "center");
+            Button button2 = Button(9, 5, "Second Button", false, "center", "center");
+            Button button3 = Button(11, 5, "Third Button", false, "center", "center");
+
+            Column column({ &button1, &button2, &button3 }, "center", "center");
+
+            Window screen(100, 100, &column);
+            screen.draw();
+            break;
+        }
+        system("CLS");
+    } while (true);
+}
+
+
+
+
+#include <iostream>
+using namespace std;
+
+class Entity {
+protected:
+    int id;
+    string createdAt;
+
+public:
+    Entity(int id) : id(id), createdAt("2023-10-01 12:00:00") {}
+
+    int getId() const {
+        return id;
+    }
+
+    string getCreatedAt() const {
+        return createdAt;
+    }
+};
+
+class User : public Entity {
+private:
+    string name;
+    string email;
+
+public:
+    User(int id, const string& name, const string& email)
+        : Entity(id), name(name), email(email) {}
+
+    string getName() const {
+        return name;
+    }
+
+    void setName(const string& name) {
+        this->name = name;
+    }
+
+    string getEmail() const {
+        return email;
+    }
+
+    void setEmail(const string& email) {
+        this->email = email;
+    }
+};
+
+class Like : public Entity {
+private:
+    User* user;
+    Entity* target;
+
+public:
+    Like(int id, User* user, Entity* target)
+        : Entity(id), user(user), target(target) {}
+
+    User* getUser() const {
+        return user;
+    }
+
+    Entity* getTarget() const {
+        return target;
+    }
+};
+
+class Comment : public Entity {
+private:
+    string text;
+    User* author;
+    Entity* target;
+
+public:
+    Comment(int id, const string& text, User* author, Entity* target)
+        : Entity(id), text(text), author(author), target(target) {}
+
+    string getText() const {
+        return text;
+    }
+
+    void setText(const string& text) {
+        this->text = text;
+    }
+
+    User* getAuthor() const {
+        return author;
+    }
+
+    Entity* getTarget() const {
+        return target;
+    }
+};
+
+class Post : public Entity {
+private:
+    string text;
+    User* author;
+    Like* likes[10];
+    Comment* comments[10];
+    int likeCount;
+    int commentCount;
+
+public:
+    Post(int id, const string& text, User* author)
+        : Entity(id), text(text), author(author), likeCount(0), commentCount(0) {}
+
+    string getText() const {
+        return text;
+    }
+
+    void setText(const string& text) {
+        this->text = text;
+    }
+
+    User* getAuthor() const {
+        return author;
+    }
+
+    void addLike(Like* like) {
+        if (likeCount < 10) {
+            likes[likeCount++] = like;
+        } else {
+            cout << "Достигнуто максимальное количество лайков!" << endl;
+        }
+    }
+
+    void addComment(Comment* comment) {
+        if (commentCount < 10) {
+            comments[commentCount++] = comment;
+        } else {
+            cout << "Достигнуто максимальное количество комментариев!" << endl;
+        }
+    }
+
+    int getLikeCount() const {
+        return likeCount;
+    }
+
+    Like* getLike(int index) const {
+        if (index >= 0 && index < likeCount) {
+            return likes[index];
+        }
+        return nullptr;
+    }
+
+    int getCommentCount() const {
+        return commentCount;
+    }
+
+    Comment* getComment(int index) const {
+        if (index >= 0 && index < commentCount) {
+            return comments[index];
+        }
+        return nullptr;
+    }
+};
+
+class Community : public Entity {
+private:
+    string name;
+    string description;
+    User* members[100];
+    int memberCount;
+
+public:
+    Community(int id, const string& name, const string& description)
+        : Entity(id), name(name), description(description), memberCount(0) {}
+
+    string getName() const {
+        return name;
+    }
+
+    void setName(const string& name) {
+        this->name = name;
+    }
+
+    string getDescription() const {
+        return description;
+    }
+
+    void setDescription(const string& description) {
+        this->description = description;
+    }
+
+    void addMember(User* user) {
+        if (memberCount < 100) {
+            members[memberCount++] = user;
+        } else {
+            cout << "Достигнуто максимальное количество участников!" << endl;
+        }
+    }
+
+    int getMemberCount() const {
+        return memberCount;
+    }
+
+    User* getMember(int index) const {
+        if (index >= 0 && index < memberCount) {
+            return members[index];
+        }
+        return nullptr;
+    }
+};
+
+class Administrator : public User {
+public:
+    Administrator(int id, const string& name, const string& email)
+        : User(id, name, email) {}
+
+    void deletePost(Post* post) {
+        cout << "Пост удален администратором " << getName() << endl;
+    }
+
+    void banUser(User* user) {
+        cout << "Пользователь " << user->getName() << " заблокирован администратором " << getName() << endl;
+    }
+};
+
+int main() {
+    User user1(1, "Alice", "alice@example.com");
+    User user2(2, "Bob", "bob@example.com");
+
+    Post post1(1, "Hello, world!", &user1);
+
+    Like like1(1, &user2, &post1);
+    post1.addLike(&like1);
+
+    Comment comment1(1, "Nice post!", &user2, &post1);
+    post1.addComment(&comment1);
+
+    Community community(1, "C++ Developers", "A community for C++ enthusiasts");
+    community.addMember(&user1);
+    community.addMember(&user2);
+
+    Administrator admin(3, "Admin", "admin@example.com");
+
+    admin.deletePost(&post1);
+
+    admin.banUser(&user2);
+
+    cout << "Пост: " << post1.getText() << endl;
+    cout << "Автор: " << post1.getAuthor()->getName() << endl;
+    cout << "Лайков: " << post1.getLikeCount() << endl;
+    cout << "Комментариев: " << post1.getCommentCount() << endl;
+
+    return 0;
+}
+
+
+
+using System;
+
+namespace MagicPhraseGenerator
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var generator = new PhraseGenerator();
+
+            Console.WriteLine("Добро пожаловать в генератор магических предсказаний!");
+            Console.WriteLine("Сколько предсказаний вы хотите получить?");
+
+            if (int.TryParse(Console.ReadLine(), out int count) && count > 0)
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    Console.WriteLine($"Предсказание {i + 1}: {generator.GeneratePhrase()}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Некорректный ввод. Пожалуйста, введите положительное число.");
+            }
+
+            Console.WriteLine("\nНажмите любую клавишу для выхода...");
+            Console.ReadKey();
+        }
+    }
+
+    class PhraseGenerator
+    {
+        private readonly string[] _beginnings =
+        {
+            "Сегодня",
+            "Завтра",
+            "Через неделю",
+            "В ближайшую полнолуние",
+            "Когда взойдет красная луна",
+            "Ровно в полночь",
+            "На следующем перекрестке",
+            "Когда ты меньше всего ожидаешь",
+            "В день твоего рождения",
+            "Когда встретишь черного кота",
+            "Под знаком Водолея",
+            "Когда ветер сменит направление",
+            "В час великого решения",
+            "Когда загадаешь желание",
+            "В сумерках"
+        };
+
+        private readonly string[] _actions =
+        {
+            "ты найдешь",
+            "ты потеряешь",
+            "тебя ждет",
+            "ты откроешь",
+            "ты поймешь",
+            "ты встретишь",
+            "ты избежишь",
+            "ты притянешь",
+            "ты разгадаешь",
+            "ты изменишь",
+            "ты обретешь",
+            "ты отпустишь",
+            "ты преодолеешь",
+            "ты создашь",
+            "ты почувствуешь",
+            "ты услышишь",
+            "ты увидишь",
+            "ты прикоснешься к",
+            "ты раскроешь",
+            "ты станешь частью"
+        };
+
+        private readonly string[] _endings =
+        {
+            "счастье",
+            "тайну",
+            "приключение",
+            "неожиданный поворот",
+            "древний артефакт",
+            "забытое знание",
+            "вторую половинку",
+            "скрытую силу",
+            "долгожданную победу",
+            "мистический знак",
+            "испытание",
+            "дар судьбы",
+            "ключ от всех дверей",
+            "проклятие",
+            "благословение луны",
+            "следы прошлой жизни",
+            "зеркальное отражение",
+            "голос из ниоткуда",
+            "путеводную звезду",
+            "тень неизвестного",
+            "магический кристалл",
+            "книгу судеб",
+            "загадочное послание",
+            "судьбоносную встречу",
+            "дверь в другой мир"
+        };
+
+        private readonly Random _random = new Random();
+
+        public string GeneratePhrase()
+        {
+            string beginning = _beginnings[_random.Next(_beginnings.Length)];
+            string action = _actions[_random.Next(_actions.Length)];
+            string ending = _endings[_random.Next(_endings.Length)];
+
+            return $"{beginning} {action} {ending}.";
+        }
+    }
+}
+
+
+
+
+
+fun main() {
+    for (i in 99 downTo 1 step 2) {
+        val square = i * i
+        println("$i^2 = $square")
+    }
+}
+
+
+
+
+
+
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <cstdint>
+
+using namespace std;
+
+const uint16_t cp1251_to_unicode[128] = {
+    0x0402, 0x0403, 0x201A, 0x0453, 0x201E, 0x2026, 0x2020, 0x2021,
+    0x20AC, 0x2030, 0x0409, 0x2039, 0x040A, 0x040C, 0x040B, 0x040F,
+    0x0452, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+    0x0000, 0x2122, 0x0459, 0x203A, 0x045A, 0x045C, 0x045B, 0x045F,
+    0x00A0, 0x040E, 0x045E, 0x0408, 0x00A4, 0x0490, 0x00A6, 0x00A7,
+    0x0401, 0x00A9, 0x0404, 0x00AB, 0x00AC, 0x00AD, 0x00AE, 0x0407,
+    0x00B0, 0x00B1, 0x0406, 0x0456, 0x0491, 0x00B5, 0x00B6, 0x00B7,
+    0x0451, 0x2116, 0x0454, 0x00BB, 0x0458, 0x0405, 0x0455, 0x0457,
+    0x0410, 0x0411, 0x0412, 0x0413, 0x0414, 0x0415, 0x0416, 0x0417,
+    0x0418, 0x0419, 0x041A, 0x041B, 0x041C, 0x041D, 0x041E, 0x041F,
+    0x0420, 0x0421, 0x0422, 0x0423, 0x0424, 0x0425, 0x0426, 0x0427,
+    0x0428, 0x0429, 0x042A, 0x042B, 0x042C, 0x042D, 0x042E, 0x042F,
+    0x0430, 0x0431, 0x0432, 0x0433, 0x0434, 0x0435, 0x0436, 0x0437,
+    0x0438, 0x0439, 0x043A, 0x043B, 0x043C, 0x043D, 0x043E, 0x043F,
+    0x0440, 0x0441, 0x0442, 0x0443, 0x0444, 0x0445, 0x0446, 0x0447,
+    0x0448, 0x0449, 0x044A, 0x044B, 0x044C, 0x044D, 0x044E, 0x044F
+};
+
+vector<uint8_t> unicode_to_utf8(uint16_t unicode) {
+    vector<uint8_t> utf8;
+    
+    if (unicode <= 0x7F) {
+        utf8.push_back(static_cast<uint8_t>(unicode));
+    } else if (unicode <= 0x7FF) {
+        utf8.push_back(static_cast<uint8_t>(0xC0 | ((unicode >> 6) & 0x1F)));
+        utf8.push_back(static_cast<uint8_t>(0x80 | (unicode & 0x3F)));
+    } else {
+        utf8.push_back(static_cast<uint8_t>(0xE0 | ((unicode >> 12) & 0x0F)));
+        utf8.push_back(static_cast<uint8_t>(0x80 | ((unicode >> 6) & 0x3F)));
+        utf8.push_back(static_cast<uint8_t>(0x80 | (unicode & 0x3F)));
+    }
+    
+    return utf8;
+}
+
+uint16_t utf8_to_unicode(const vector<uint8_t>& utf8, size_t& pos) {
+    uint16_t unicode = 0;
+    
+    if ((utf8[pos] & 0x80) == 0) {
+        unicode = utf8[pos];
+    } else if ((utf8[pos] & 0xE0) == 0xC0) {
+        unicode = ((utf8[pos] & 0x1F) << 6) | (utf8[pos+1] & 0x3F);
+        pos += 1;
+    } else if ((utf8[pos] & 0xF0) == 0xE0) {
+        unicode = ((utf8[pos] & 0x0F) << 12) | ((utf8[pos+1] & 0x3F) << 6) | (utf8[pos+2] & 0x3F);
+        pos += 2;
+    }
+    
+    return unicode;
+}
+
+uint8_t unicode_to_cp1251(uint16_t unicode) {
+    if (unicode <= 0x7F) {
+        return static_cast<uint8_t>(unicode);
+    }
+
+    for (int i = 0; i < 128; ++i) {
+        if (cp1251_to_unicode[i] == unicode) {
+            return static_cast<uint8_t>(i + 0x80);
+        }
+    }
+    
+    return '?';
+}
+
+vector<uint8_t> read_file(const string& filename) {
+    ifstream file(filename, ios::binary);
+    if (!file) {
+        throw runtime_error("Cannot open input file");
+    }
+    
+    file.seekg(0, ios::end);
+    size_t size = file.tellg();
+    file.seekg(0, ios::beg);
+    
+    vector<uint8_t> data(size);
+    file.read(reinterpret_cast<char*>(data.data()), size);
+    
+    return data;
+}
+
+void write_file(const string& filename, const vector<uint8_t>& data) {
+    ofstream file(filename, ios::binary);
+    if (!file) {
+        throw runtime_error("Cannot open output file");
+    }
+    
+    file.write(reinterpret_cast<const char*>(data.data()), data.size());
+}
+
+vector<uint8_t> cp1251_to_utf8(const vector<uint8_t>& cp1251_data) {
+    vector<uint8_t> utf8_data;
+    
+    for (uint8_t byte : cp1251_data) {
+        if (byte <= 0x7F) {
+            utf8_data.push_back(byte);
+        } else {
+            uint16_t unicode = cp1251_to_unicode[byte - 0x80];
+            vector<uint8_t> utf8 = unicode_to_utf8(unicode);
+            utf8_data.insert(utf8_data.end(), utf8.begin(), utf8.end());
+        }
+    }
+    
+    return utf8_data;
+}
+
+vector<uint8_t> utf8_to_cp1251(const vector<uint8_t>& utf8_data) {
+    vector<uint8_t> cp1251_data;
+    
+    for (size_t i = 0; i < utf8_data.size(); ++i) {
+        if ((utf8_data[i] & 0x80) == 0) {
+            cp1251_data.push_back(utf8_data[i]);
+        } else {
+            uint16_t unicode = utf8_to_unicode(utf8_data, i);
+            uint8_t cp1251 = unicode_to_cp1251(unicode);
+            cp1251_data.push_back(cp1251);
+        }
+    }
+    
+    return cp1251_data;
+}
+
+int main() {
+    try {
+        string input_filename, output_filename;
+        int input_encoding, output_encoding;
+        
+        cout << "Enter input filename: ";
+        cin >> input_filename;
+        
+        cout << "Enter output filename: ";
+        cin >> output_filename;
+        
+        cout << "Select input encoding (1 - CP1251, 2 - UTF-8): ";
+        cin >> input_encoding;
+        
+        cout << "Select output encoding (1 - CP1251, 2 - UTF-8): ";
+        cin >> output_encoding;
+        
+        if (input_encoding < 1 || input_encoding > 2 || output_encoding < 1 || output_encoding > 2) {
+            cerr << "Invalid encoding selection" << endl;
+            return 1;
+        }
+        
+        vector<uint8_t> input_data = read_file(input_filename);
+        vector<uint8_t> output_data;
+        
+        if (input_encoding == 1 && output_encoding == 2) {
+            output_data = cp1251_to_utf8(input_data);
+        } else if (input_encoding == 2 && output_encoding == 1) {
+            output_data = utf8_to_cp1251(input_data);
+        } else {
+            output_data = input_data;
+        }
+        
+        write_file(output_filename, output_data);
+        
+        cout << "File converted successfully!" << endl;
+    } catch (const exception& e) {
+        cerr << "Error: " << e.what() << endl;
+        return 1;
+    }
+    
+    return 0;
+}
+
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Employee {
+protected:
+    string name;
+    double salary;
+
+public:
+    Employee(const string& name, double salary)
+        : name(name), salary(salary) {}
+
+    virtual double calculateBonus() const {
+        return 0.0;
+    }
+
+    virtual ~Employee() = default;
+};
+
+class Manager : public Employee {
+private:
+    int numberOfSubordinates;
+
+public:
+    Manager(const string& name, double salary, int numberOfSubordinates)
+        : Employee(name, salary), numberOfSubordinates(numberOfSubordinates) {}
+
+    double calculateBonus() const override {
+        return salary * 0.1 + numberOfSubordinates * 100;
+    }
+};
+
+class Developer : public Employee {
+private:
+    int numberOfProjects;
+
+public:
+    Developer(const string& name, double salary, int numberOfProjects)
+        : Employee(name, salary), numberOfProjects(numberOfProjects) {}
+
+    double calculateBonus() const override {
+        return salary * 0.15 + numberOfProjects * 200;
+    }
+};
+
+class Intern : public Employee {
+private:
+    int internshipDuration;
+
+public:
+    Intern(const std::string& name, double salary, int internshipDuration)
+        : Employee(name, salary), internshipDuration(internshipDuration) {}
+
+    double calculateBonus() const override {
+        if (internshipDuration > 3) {
+            return 500;
+        }
+        else {
+            return 0.0;
+        }
+    }
+};
+
+void printEmployeeBonus(const Employee& employee) {
+    cout << "Employee: " << employee.calculateBonus() << " bonus." << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    Manager manager("Ilon Mask", 5000, 5);
+    Developer developer("Donald Trump", 4000, 3);
+    Intern intern("Bill Harrington", 1000, 4);
+
+    printEmployeeBonus(manager);
+    printEmployeeBonus(developer);
+    printEmployeeBonus(intern);
+
+    return 0;
+}
+
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Tovar {
+private:
+    string name;
+    double price;
+public:
+    Tovar(string name, double price) : name(name), price(price) 
+    {
+
+    }
+    virtual void print() {
+        cout << "Название: " << name << ", Цена: " << price << " руб.";
+    }
+};
+
+
+class Product : public Tovar {
+private:
+    string proizvoditel;
+public:
+    Product(string name, double price, string proizvoditel) : Tovar(name, price), proizvoditel(proizvoditel) 
+    {
+
+    }
+    void print()
+    {
+        Tovar::print();
+        cout << ", Производитель: " << proizvoditel << endl;
+    }
+};
+
+class DairyProduct : public Product {
+private:
+    int hp;
+public:
+    DairyProduct(string name, double price, string proizvoditel, int hp) : Product(name, price, proizvoditel), hp(hp) 
+    {
+
+    }
+    void print()
+    {
+        Tovar::print();
+        cout << ", Молочный продукт, срок годности: " << hp << " дней" << endl;
+    }
+};
+
+class Toy : public Tovar {
+private:
+    int age;
+public:
+    Toy(string name, double price, int age) : Tovar(name, price), age(age) 
+    {
+
+    }
+    void print()
+    {
+        Tovar::print();
+        cout << ", Игрушка для детей от " << age << " лет" << endl;
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    Tovar* WW[3];
+
+    WW[0] = new Product("КС 2", 1500, "Valve");
+    WW[1] = new DairyProduct("Молоко", 80, "Коровушка", 14);
+    WW[2] = new Toy("Лего", 777, 6);
+
+    for (int i = 0; i < 3; i++) {
+        WW[i]->print();
+    }
+    return 0;
+}
+/*
+Колосов Алексей
+Практика :
+Игрушка, продукт, товар, молочный продукт
+Теория :
+
+В чем заключаются особенности доступа членов класса с модификатором private ?
+
+Какие механизмы используются в языке C++ для реализации концепции полиморфизма ?
 */
 
 
 
 
 
+#include <iostream>
+#include <string>
+using namespace std;
+
+void checkPass() {
+    string pass;
+    bool IsExecut = false;
+
+    do {
+        try {
+            cout << "Для регистрации введите пароль состоящий минимум из 8 символов без знаков '.', ',', '/': ";
+            getline(cin, pass);
+
+            if (pass.length() < 8) {
+                throw "Пароль должен содержать минимум 8 символов";
+            }
+
+            for (char ch : pass) {
+                if (ch == '.' || ch == ',' || ch == '/') {
+                    throw "Недопустимые символы";
+                }
+            }
+            cout << "Пароль принят\n";
+            cout << "Новый пароль: " << pass << endl;
+            IsExecut = true;
+        }
+        catch (const char* error) {
+            cout << error << endl;
+        }
+    } while (!IsExecut);
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    checkPass();
+    return 0;
+}
 
 
+
+
+package com.example.competitionapp
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            CompetitionApp()
+        }
+    }
+}
+
+@Composable
+fun CompetitionApp() {
+    Column(modifier = Modifier.padding(16.dp)) {
+        CompetitionResults(
+            participants = listOf("Иванов", "Петров", "Сидоров", "Козлов", "Смирнов")
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        EvenNumbersListLazy()
+    }
+}
+
+@Composable
+fun CompetitionResults(participants: List<String>) {
+    participants.forEachIndexed { index, surname ->
+        Card(
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(text = "${index + 1}", modifier = Modifier.weight(1f))
+                Text(text = surname, modifier = Modifier.weight(2f))
+            }
+        }
+    }
+}
+
+@Composable
+fun EvenNumbersListLazy() {
+    val evenNumbers = remember { mutableStateListOf(*(0..198 step 2).toList().toTypedArray()) }
+
+    LazyColumn {
+        itemsIndexed(
+            items = evenNumbers,
+            key = { _, number -> number }
+        ) { index, number ->
+            Button(
+                onClick = { evenNumbers.removeAt(index) },
+                modifier = Modifier
+                    .padding(4.dp)
+                    .fillMaxWidth()
+            ) {
+                Text(text = number.toString())
+            }
+        }
+    }
+}
+
+
+
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Person {
+protected:
+    string name;
+    int age;
+
+public:
+    Person(const string& name, int age) : name(name), age(age) {}
+
+    virtual ~Person() {}
+
+    virtual void displayInfo() const {
+        cout << "Имя: " << name << ", Возраст: " << age;
+    }
+
+    string getName() const { return name; }
+    int getAge() const { return age; }
+};
+
+class Student : public Person {
+protected:
+    int studentId;
+    string major;
+    int semester;
+
+public:
+    Student(const string& name, int age, int studentId,
+        const string& major, int semester)
+        : Person(name, age), studentId(studentId), major(major), semester(semester) {}
+
+    void displayInfo() const override {
+        Person::displayInfo();
+        cout << ", ID студента: " << studentId
+            << ", Специальность: " << major
+            << ", Семестр: " << semester << endl;
+    }
+
+    virtual void study() {
+        cout << name << " изучает " << major << endl;
+    }
+
+    int getStudentId() const { return studentId; }
+    string getMajor() const { return major; }
+    int getSemester() const { return semester; }
+};
+
+class ExpelledStudent : public Student {
+private:
+    string reason;
+    string expulsionDate;
+
+public:
+    ExpelledStudent(const string& name, int age, int studentId,
+        const string& major, int semester,
+        const string& reason, const string& expulsionDate)
+        : Student(name, age, studentId, major, semester),
+        reason(reason), expulsionDate(expulsionDate) {}
+
+    void displayInfo() const override {
+        Student::displayInfo();
+        cout << "Статус: Отчислен, Причина: " << reason
+            << ", Дата отчисления: " << expulsionDate << endl;
+    }
+
+    void appealExpulsion() {
+        cout << name << " подает апелляцию на отчисление по причине: " << reason << endl;
+    }
+
+    string getReason() const { return reason; }
+    string getExpulsionDate() const { return expulsionDate; }
+};
+
+class Classroom {
+private:
+    string roomNumber;
+    int capacity;
+    string equipment[10];
+    int equipmentCount;
+
+public:
+    Classroom(const string& roomNumber, int capacity,
+        const string equipment[], int equipmentCount)
+        : roomNumber(roomNumber), capacity(capacity), equipmentCount(equipmentCount) {
+        for (int i = 0; i < equipmentCount; i++) {
+            this->equipment[i] = equipment[i];
+        }
+    }
+
+    void displayInfo() const {
+        cout << "Аудитория: " << roomNumber << ", Вместимость: " << capacity
+            << ", Оборудование: ";
+        for (int i = 0; i < equipmentCount; i++) {
+            cout << equipment[i] << " ";
+        }
+        cout << endl;
+    }
+
+    bool canAccommodate(int students) const {
+        return students <= capacity;
+    }
+
+    string getRoomNumber() const { return roomNumber; }
+    int getCapacity() const { return capacity; }
+};
+
+class College {
+private:
+    string name;
+    string location;
+    Student* students[100];
+    int studentCount;
+    Classroom classrooms[20];
+    int classroomCount;
+
+public:
+    College(const string& name, const string& location)
+        : name(name), location(location), studentCount(0), classroomCount(0) {}
+
+    ~College() {
+        for (int i = 0; i < studentCount; i++) {
+            delete students[i];
+        }
+    }
+
+    void addStudent(Student* student) {
+        if (studentCount < 100) {
+            students[studentCount++] = student;
+        }
+        else {
+            cout << "Достигнуто максимальное количество студентов!" << endl;
+        }
+    }
+
+    void addClassroom(const Classroom& classroom) {
+        if (classroomCount < 20) {
+            classrooms[classroomCount++] = classroom;
+        }
+        else {
+            cout << "Достигнуто максимальное количество аудиторий!" << endl;
+        }
+    }
+
+    void displayAllStudents() const {
+        cout << "Студенты колледжа " << name << ":" << endl;
+        for (int i = 0; i < studentCount; i++) {
+            students[i]->displayInfo();
+        }
+    }
+
+    void displayAllClassrooms() const {
+        cout << "Аудитории колледжа " << name << ":" << endl;
+        for (int i = 0; i < classroomCount; i++) {
+            classrooms[i].displayInfo();
+        }
+    }
+
+    void expelStudent(int studentId, const string& reason, const string& date) {
+        for (int i = 0; i < studentCount; i++) {
+            if (students[i]->getStudentId() == studentId) {
+                Student* student = students[i];
+                ExpelledStudent* expelled = new ExpelledStudent(
+                    student->getName(), student->getAge(), student->getStudentId(),
+                    student->getMajor(), student->getSemester(), reason, date);
+
+                delete students[i];
+                students[i] = expelled;
+                cout << student->getName() << " был отчислен." << endl;
+                return;
+            }
+        }
+        cout << "Студент с ID " << studentId << " не найден." << endl;
+    }
+
+    string getName() const { return name; }
+    string getLocation() const { return location; }
+};
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    College college("Технический Колледж", "ул. Университетская, 123");
+    college.addStudent(new Student("Сотников Алексей", 21, 1001, "РПО-1124", 3));
+    college.expelStudent(1001, "Академическая неуспеваемость", "2025-03-26");
+    return 0;
+}
+
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import kotlin.random.Random
+
+@Composable
+fun TicTacToeApp() {
+    var board by remember {
+        mutableStateOf(Array(3) {
+            Array(3) { "" }
+        })
+    }
+
+    var currentPlayer by remember { mutableStateOf("X") }
+    var winner by remember { mutableStateOf<String?>(null) }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = if (winner != null) "Победил: $winner" else "Ход: $currentPlayer",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (winner != null) Color.Green else Color.Black
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Board(board, onCellClick = { row, col ->
+            if (board[row][col].isEmpty() && winner == null) {
+                board[row][col] = currentPlayer
+
+                if (checkWinner(board, currentPlayer)) {
+                    winner = currentPlayer
+                } else if (board.all { row -> row.all { it.isNotEmpty() } }) {
+                    winner = "Ничья"
+                } else {
+                    currentPlayer = if (currentPlayer == "X") "O" else "X"
+                    if (currentPlayer == "O" && winner == null) {
+                        botMove(board) { r, c ->
+                            board[r][c] = "O"
+                            if (checkWinner(board, "O")) {
+                                winner = "O"
+                            } else if (board.all { row -> row.all { it.isNotEmpty() } }) {
+                                winner = "Ничья"
+                            } else {
+                                currentPlayer = "X"
+                            }
+                        }
+                    }
+                }
+            }
+        })
+        Spacer(modifier = Modifier.height(16.dp))
+        if (winner != null) {
+            Button(
+                onClick = {
+                    board = Array(3) { Array(3) { "" } }
+                    currentPlayer = "X"
+                    winner = null
+                },
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+            ) {
+                Text(text = "Начать заново", color = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+fun Board(board: Array<Array<String>>, onCellClick: (Int, Int) -> Unit) {
+    Column(
+        modifier = Modifier.padding(8.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        for (row in 0 until 3) {
+            Row(
+                horizontalArrangement = Arrangement.Center
+            ) {
+                for (col in 0 until 3) {
+                    Cell(board[row][col], onClick = { onCellClick(row, col) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Cell(value: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier.size(80.dp).padding(4.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color.LightGray)
+    ) {
+        Text(
+            text = value,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (value == "X") Color.Red else Color.Blue
+        )
+    }
+}
+
+fun checkWinner(board: Array<Array<String>>, player: String): Boolean {
+    for (i in 0 until 3) {
+        if (board[i][0] == player && board[i][1] == player && board[i][2] == player) return true
+        if (board[0][i] == player && board[1][i] == player && board[2][i] == player) return true
+    }
+    if (board[0][0] == player && board[1][1] == player && board[2][2] == player) return true
+    if (board[0][2] == player && board[1][1] == player && board[2][0] == player) return true
+
+    return false
+}
+
+fun botMove(board: Array<Array<String>>, onCellClick: (Int, Int) -> Unit) {
+    val emptyCells = mutableListOf<Pair<Int, Int>>()
+    for (row in 0 until 3) {
+        for (col in 0 until 3) {
+            if (board[row][col].isEmpty()) {
+                emptyCells.add(Pair(row, col))
+            }
+        }
+    }
+    if (emptyCells.isNotEmpty()) {
+        val (row, col) = emptyCells[Random.nextInt(emptyCells.size)]
+        onCellClick(row, col)
+    }
+}
+
+
+//1
+using System;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string file1Path = "file1.txt";
+        string file2Path = "file2.txt";
+        string mergedPath = "merged.txt";
+
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(mergedPath))
+            {
+                if (File.Exists(file1Path))
+                {
+                    string[] lines = File.ReadAllLines(file1Path);
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine($"[file1.txt] {line}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Файл {file1Path} не найден.");
+                }
+
+                if (File.Exists(file2Path))
+                {
+                    string[] lines = File.ReadAllLines(file2Path);
+                    foreach (string line in lines)
+                    {
+                        writer.WriteLine($"[file2.txt] {line}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Файл {file2Path} не найден.");
+                }
+            }
+
+            Console.WriteLine("Файлы успешно объединены в merged.txt");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
+    }
+}
+
+//2
+using System;
+using System.IO;
+
+class Program
+{
+    static void Main()
+    {
+        string inputPath = "input.txt";
+        string resultPath = "result.txt";
+
+        try
+        {
+            if (File.Exists(inputPath))
+            {
+                string text = File.ReadAllText(inputPath);
+                int wordCount = CountWords(text);
+
+                File.WriteAllText(resultPath, $"Количество слов: {wordCount}");
+                Console.WriteLine($"Результат сохранен в {resultPath}");
+            }
+            else
+            {
+                Console.WriteLine($"Файл {inputPath} не найден.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Произошла ошибка: {ex.Message}");
+        }
+    }
+
+    static int CountWords(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
+
+        string[] words = text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        return words.Length;
+    }
+}
+
+
+
+
+abstract class Color {
+    abstract fun toRGB() : RGB
+        abstract fun toCMYK() : CMYK
+        abstract fun toHSV() : HSV
+        abstract fun printInfo()
+}
+
+class RGB(var red : Int, var green : Int, var blue : Int) : Color() {
+
+    override fun toRGB() : RGB{
+        return this
+    }
+
+        override fun toCMYK() : CMYK{
+            val r = red / 255.0
+            val g = green / 255.0
+            val b = blue / 255.0
+
+            val k = 1 - maxOf(r, g, b)
+            val c = (1 - r - k) / (1 - k)
+            val m = (1 - g - k) / (1 - k)
+            val y = (1 - b - k) / (1 - k)
+
+            return CMYK((c * 100).toInt(), (m * 100).toInt(), (y * 100).toInt(), (k * 100).toInt())
+    }
+
+        override fun toHSV() : HSV{
+            val r = red / 255.0
+            val g = green / 255.0
+            val b = blue / 255.0
+
+            val max = maxOf(r, g, b)
+            val min = minOf(r, g, b)
+            val delta = max - min
+
+            val h = when {
+                delta == 0.0 -> 0.0
+                max == r -> 60 * (((g - b) / delta) % 6)
+                max == g -> 60 * (((b - r) / delta) + 2)
+                else -> 60 * (((r - g) / delta) + 4)
+            }
+
+            val s = if (max == 0.0) 0.0 else delta / max
+            val v = max
+
+            return HSV(h.toInt(), (s * 100).toInt(), (v * 100).toInt())
+    }
+
+        override fun printInfo() {
+        println("RGB: ($red, $green, $blue)")
+    }
+
+    fun mix(other: RGB) : RGB{
+        return RGB(
+            (red + other.red) / 2,
+            (green + other.green) / 2,
+            (blue + other.blue) / 2
+        )
+    }
+}
+
+class CMYK(var cyan : Int, var magenta : Int, var yellow : Int, var key : Int) : Color() {
+
+    override fun toRGB() : RGB{
+        val r = 255 * (1 - cyan / 100.0) * (1 - key / 100.0)
+        val g = 255 * (1 - magenta / 100.0) * (1 - key / 100.0)
+        val b = 255 * (1 - yellow / 100.0) * (1 - key / 100.0)
+
+        return RGB(r.toInt(), g.toInt(), b.toInt())
+    }
+
+        override fun toCMYK() : CMYK{
+            return this
+    }
+
+        override fun toHSV() : HSV{
+            return this.toRGB().toHSV()
+    }
+
+        override fun printInfo() {
+        println("CMYK: ($cyan%, $magenta%, $yellow%, $key%)")
+    }
+
+    fun mix(other: CMYK) : CMYK{
+        return CMYK(
+            (cyan + other.cyan) / 2,
+            (magenta + other.magenta) / 2,
+            (yellow + other.yellow) / 2,
+            (key + other.key) / 2
+        )
+    }
+}
+
+class HSV(var hue : Int, var saturation : Int, var value : Int) : Color() {
+
+    override fun toRGB() : RGB{
+        val h = hue / 60.0
+        val s = saturation / 100.0
+        val v = value / 100.0
+
+        val c = v * s
+        val x = c * (1 - Math.abs((h % 2) - 1))
+        val m = v - c
+
+        val(r, g, b) = when {
+            h < 1->Triple(c, x, 0.0)
+            h < 2->Triple(x, c, 0.0)
+            h < 3->Triple(0.0, c, x)
+            h < 4->Triple(0.0, x, c)
+            h < 5->Triple(x, 0.0, c)
+            else->Triple(c, 0.0, x)
+        }
+
+        return RGB(
+            ((r + m) * 255).toInt(),
+            ((g + m) * 255).toInt(),
+            ((b + m) * 255).toInt()
+        )
+    }
+
+        override fun toCMYK() : CMYK{
+            return this.toRGB().toCMYK()
+    }
+
+        override fun toHSV() : HSV{
+            return this
+    }
+
+        override fun printInfo() {
+        println("HSV: ($hue°, $saturation%, $value%)")
+    }
+
+    fun mix(other: HSV) : HSV{
+        return HSV(
+            (hue + other.hue) / 2,
+            (saturation + other.saturation) / 2,
+            (value + other.value) / 2
+        )
+    }
+}
+
+fun main() {
+    val rgb = RGB(255, 0, 0)
+        val cmyk = rgb.toCMYK()
+        val hsv = rgb.toHSV()
+
+        println("Исходный цвет:")
+        rgb.printInfo()
+        println("Преобразованный в CMYK:")
+        cmyk.printInfo()
+        println("Преобразованный в HSV:")
+        hsv.printInfo()
+
+        val mixedRGB = rgb.mix(RGB(0, 255, 0)) 
+        println("Смешанный цвет (RGB):")
+        mixedRGB.printInfo()
+
+        val mixedCMYK = cmyk.mix(CMYK(0, 100, 100, 0))
+        println("Смешанный цвет (CMYK):")
+        mixedCMYK.printInfo()
+
+        val mixedHSV = hsv.mix(HSV(120, 100, 100)) 
+        println("Смешанный цвет (HSV):")
+        mixedHSV.printInfo()
+}
+
+
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+template <typename T>
+class LinkedList {
+public:
+    class Node {
+    public:
+        T data;
+        Node* next;
+
+        Node() { this->data = 0; this->next = nullptr; }
+
+        Node(T value) { this->data = value; this->next = nullptr; }
+    };
+
+    Node* Head;
+
+    LinkedList() { this->Head = nullptr; }
+    LinkedList(Node* head) { this->Head = head; }
+
+    void push(T value) {
+        if (Head == nullptr) {
+            Head = new Node(value);
+        }
+        else {
+            Node* current = Head;
+
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = new Node(value);
+        }
+    }
+
+    void print() {
+        if (Head == nullptr) {
+            cout << "Список пустой";
+        }
+        else {
+            Node* current = Head;
+
+            while (current->next != nullptr) {
+                cout << current->data << " ";
+                current = current->next;
+            }
+            cout << current->data << " ";
+            cout << endl;
+        }
+    }
+
+    T get(int index) {
+        if (Head == nullptr) {
+            return 0;
+        }
+        else {
+            Node* current = Head;
+
+            while (current->next != nullptr && index > 0) {
+                current = current->next;
+                index--;
+            }
+            return current->data;
+        }
+    }
+
+    void remove(T data) {
+        Node* current = Head;
+
+        while (current->next != nullptr && current->data != data) {
+            current = current->next;
+        }
+    }
+
+    void removeAt(int index) {
+        Node* current = Head;
+
+        while (current->next != nullptr && index > 1) {
+            current = current->next;
+            index--;
+        }
+        Node* buffer = current->next->next;
+        delete current->next;
+        current->next = buffer;
+    }
+
+    LinkedList<T> subList(int indexStart, int indexEnd) {
+        LinkedList<T> newList;
+        Node* current = Head;
+        int currentIndex = 0;
+
+        while (current != nullptr && currentIndex < indexStart) {
+            current = current->next;
+            currentIndex++;
+        }
+
+        while (current != nullptr && currentIndex < indexEnd) {
+            newList.push(current->data);
+            current = current->next;
+            currentIndex++;
+        }
+
+        return newList;
+    }
+
+    void clear() {
+        while (Head != nullptr) {
+            Node* temp = Head;
+            Head = Head->next;
+            delete temp;
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "rus");
+    LinkedList<string>* list = new LinkedList<string>();
+    list->push("10.5asdd");
+    list->push("15.5asdasd");
+    list->push("20.5adsad");
+    list->push("25.5asdasd");
+    list->push("30.5asdasd");
+    list->print();
+
+    cout << "Подсписок с индекса 1 до 3:" << endl;
+    LinkedList<string> subList = list->subList(1, 3);
+    subList.print();
+
+    cout << "Очистка списка:" << endl;
+    list->clear();
+    list->print();
+
+    delete list;
+    return 0;
+}
+
+
+
+#include <iostream>
+using namespace std;
+
+
+//38
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+
+    int x, y, z;
+    cout << "Введите х";
+    cin >> x;
+    cout << "Введите y";
+    cin >> y;
+    if (x > y)
+    {
+        z = x - y;
+        cout << "Z=" << z << endl;
+    }
+    else {
+        z = y - x + 1;
+        cout << "Z=" << z << endl;
+    }
+    return 0;
+}*/
+
+//41
+
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    int a, b, c;
+    cout << "Введите a=";
+    cin >> a;
+    cout << "Введите b=";
+    cin >> b;
+    cout << "Введите c=";
+    cin >> c;
+    
+    if (a >= 1 && a <= 3) {
+        cout << "a=" << a << endl;
+    }
+    if (b >= 1 && b <= 3) {
+        cout << "b=" << b << endl;
+    }
+    if (c >= 1 && c <= 3) {
+        cout << "c=" << c << endl;
+    }
+    
+
+    return 0;
+}*/
+
+//74
+/*int main()
+{
+    setlocale(LC_ALL, "russian");
+    
+    int n;
+    cout << "Ввести число не больше 100\n";
+    cin >> n;
+    if (n < 2) {
+        cout << n << "год";
+    }
+    else if (n > 20 && n < 22) {
+        cout << n << "год";
+    }
+    else if (n > 30 && n < 32) {
+        cout << n << "год";
+    }
+    else if (n > 40 && n < 42) {
+        cout << n << "год";
+    }
+    else if (n > 50 && n < 52) {
+        cout << n << "год";
+    }
+    else if (n > 60 && n < 62) {
+        cout << n << "год";
+    }
+    else if (n > 70 && n < 72) {
+        cout << n << "год";
+    }
+    else if (n > 80 && n < 82) {
+        cout << n << "год";
+    }
+    else if (n > 90 && n < 92) {
+        cout << n << "год";
+    }
+    else if (n > 1 && n < 5) {
+        cout << n << " года";
+    }
+    else if (n > 21 && n < 25) {
+        cout << n << " года";
+    }
+    else if (n > 31 && n < 35) {
+        cout << n << " года";
+    }
+    else if (n > 41 && n < 45) {
+        cout << n << " года";
+    }
+    else if (n > 51 && n < 55) {
+        cout << n << " года";
+    }
+    else if (n > 61 && n < 65) {
+        cout << n << " года";
+    }
+    else if (n > 71 && n < 75) {
+        cout << n << " года";
+    }
+    else if (n > 81 && n < 85) {
+        cout << n << " года";
+    }
+    else if (n > 91 && n < 95) {
+        cout << n << " года";
+    }
+    else if (n > 4 && n < 21) {
+        cout << n << "Лет";
+    }
+    else if (n > 24 && n < 31) {
+        cout << n << "Лет";
+    }
+    else if (n > 34 && n < 41) {
+        cout << n << "Лет";
+    }
+    else if (n > 44 && n < 51) {
+        cout << n << "Лет";
+    }
+    else if (n > 54 && n < 61) {
+        cout << n << "Лет";
+    }
+    else if (n > 64 && n < 71) {
+        cout << n << "Лет";
+    }
+    else if (n > 74 && n < 81) {
+        cout << n << "Лет";
+    }
+    else if (n > 84 && n < 91) {
+        cout << n << "Лет";
+    }
+    else if (n > 94 && n < 101) {
+        cout << n << "Лет";
+    }
+        return 0;
+}*/
+
+//75
+
+/*void sum(int gg) {
+    int a = 1;
+    int b = 1;
+    while (true) {
+        int y = 3 * a + 5 * b;
+        if (y == gg) {
+            cout << a << "" << b;
+            break;
+        }
+        if (y < gg) {
+            a++;
+            b++;
+        }
+        if (y > gg) {
+            a--;
+        }
+        if (a < 0) {
+            a = a + 5;
+            b = b + 3;
+        }
+    }
+    cout << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int size;
+    cin >> size;
+    sum(size);
+
+}*/
+
+//76
+
+/*bool isSameColor(int k, int l, int m, int n) { 
+    return (k + l) % 2 == (m + n) % 2;
+}
+
+bool queenThreatens(int k, int l, int m, int n) { 
+    return(k == m || l == n || abs(k - m) == abs(l - n));
+}
+
+bool knightThreatens(int k, int l, int m, int n) { 
+    return (abs(k - m) == 2 && abs(l - n) == 1) || (abs(k - m) == 1 && abs(l - n) == 2);
+}
+
+bool rookCanMove(int k, int l, int m, int n) { 
+    return (k == m || l == n);
+}
+
+bool canRookMoveInTwo(int k, int l, int m, int n) { 
+    if (k != m) {
+        return k != m && ((l == n) || (m != l));
+    }
+    if (l != n) {
+        return l != n && ((k == m) || (n != k));
+    }
+    return false;
+}
+
+bool queenCanMoveInTwo(int k, int l, int m, int n) { 
+    return(k == m || l == n || abs(k - m) == abs(l - n));
+}
+
+bool bishopCanMove(int k, int l, int m, int n) { 
+    return abs(k - m) == abs(l - n);
+}
+    
+void findIntermediateRook(int k, int l, int m, int n) {
+    if (!rookCanMove(k, l, m, n)) {
+        cout << "Двинуть в (";
+        if (k != m) {
+            cout << m << "," << l << ") тогда в (" << m << "," << n << ")\n";
+        }
+        else {
+            cout << k << "," << n << ") тогда в (" << m << "," << n << ")\n";
+        }
+    }
+    else {
+        cout << "" << k << "," << l << ") то (" << m << "," << n << ")\n";
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+
+    int k, l, m, n;
+    cout << "";
+    cin >> k >> l;
+    cout << "";
+    cin >> m >> n;
+
+    cout << "Поля 1 цвета?" << (isSameColor(k, l, m, n) ? "Да" : "Нет") << endl; //a)
+    cout << "Угрожает ли ферзь полю(m,n)?" << (queenThreatens(k, l, m, n) ? "Да" : "Нет") << endl; //b)
+    cout << "Угрожает ли конь полю(m,n)?" << (knightThreatens(k, l, m, n) ? "Да" : "Нет") << endl; //c)
+    cout << "Может ли ладья за 1 ход переместиться в (m,n)?" << (rookCanMove(k, l, m, n) ? "Да" : "Нет") << endl;  //d)
+    findIntermediateRook(k, l, m, n);
+    cout << "Может ли ферзь за 1 ход переместиться в (m,n)?" << (queenCanMoveInTwo(k, l, m, n) ? "Да" : "Нет") << endl; //e)
+    cout << "Может ли слон за 1 ход переместиться в (m,n)?" << (bishopCanMove(k, l, m, n) ? "Да" : "Нет") << endl; //f)
+
+    return 0;
+}*/
+
+
+
+
+//Задача: Напишите программу, которая запрашивает у пользователя два числа и выводит на экран наибольшее из них.
+/*
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    double a;
+    double b;
+    cout << "Введите а";
+    cin >> a;
+    cout << "Введите b";
+    cin >> b;
+    if (a > b)
+    {
+        cout << "Наибольшее число:" << a << endl;
+    }
+    else if (b > a)
+    {
+        cout << "Наибольшее число:" << b << endl;
+    }
+}
+*/
+
+//Задача: Напишите программу, которая запрашивает у пользователя число и выводит на экран все числа от 1 до этого числа.
+/*
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    int a;
+    cout << "Введите число:" << endl;
+    cin >> a;
+    if (a < 1)
+    {
+        cout << "Введите чило:" << endl;
+    }
+    else
+    {
+        cout << "Число от 1 до" << a << ":" << endl;
+        for (int i = 1;i <= a;++i)
+        {
+            cout << i << "";
+        }
+        cout << endl;
+    }
+    return 0;
+}
+*/
+
+//Задача: Напишите функцию, которая принимает число и возвращает true, если число является простым,
+и false в противном случае. Используйте эту функцию в программе, которая запрашивает у пользователя число
+и выводит на экран, является ли оно простым.
+/*
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    int number;
+    int a;
+
+    cout << "Введите число";
+    cin >> number;
+
+    if (number <= 1)
+    {
+        a = 0;
+    }
+    else
+    {
+        for (int i = 2;i * i <= number;++i)
+        {
+            if (number % i == 0)
+            {
+                a = 0;
+                break;
+            }
+        }
+    }
+    if (a)
+    {
+        cout << number << "Является простым числом" << endl;
+    }
+    else
+    {
+        cout << number << "Не является простым числом" << endl;
+    }
+    return 0;
+}
+*/
+
+//Задача: Напишите программу, которая запрашивает у пользователя размер массива и его элементы.
+Затем программа должна вывести на экран все элементы массива, используя динамический массив.
+/*
+#include <iostream>
+using namespace std;
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    int size;
+
+    cout << "Введите размер массива";
+    cin >> size;
+
+    if (size <= 0)
+    {
+        cout << "Размер должен быть положительным" << endl;
+        return 1;
+    }
+    int* array = new int[size];
+
+    cout << "Введите" << size << "элементов массива" << endl;
+    for (int i = 0;i < size;++i)
+    {
+        cout << "Элемент" << i + 1 << ":";
+        cin >> array[i];
+    }
+    cout << "Элементы массива" << endl;
+    for (int i = 0;i < size;++i)
+    {
+        cout << array[i] << "";
+    }
+    cout << endl;
+
+    delete array;
+
+    return 0;
+}
+*/
+//Какое-то задание
+/*
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+string* ReverseString(string& str)
+{
+    string newStr = "";
+
+    for (int i = str.size() - 1;i >= 0; i--)
+    {
+        newStr += str[i];
+    }
+    return &newStr;
+}
+
+bool isContains(int* arr, int sizeArr, int elem)
+{
+    for (int i = 0;i < sizeArr;i++)
+    {
+        if (arr[i] == elem)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "russian");
+    
+    int size = 10;
+
+    int* arr = new int[size] {1, 2, 3, 4, 1, 2, 3, 5, 6, 7};
+    int* newArr = new int[size];
+
+    int j = 0;
+
+    for (int i = 0; i < size; i++)
+    {
+        if (isContains(newArr, 10, arr[i]))
+        {
+            continue;
+        }
+        else
+        {
+            newArr[j] = arr[i];
+            j++;
+        }
+    }
+
+    int* resultArr = new int[j];
+
+    for (int i = 0;i < j;i++)
+    {
+        resultArr[i] = newArr[i];
+    }
+
+    for (int i = 0;i < j; i++)
+    {
+        cout << resultArr[i];
+    }
+}
+*/
+// Тоже какое-то задание
+/*
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+int main() {
+    string strMain = "test string in my string";
+    string subString = "string in";
+
+    int j = 0;
+    bool flag = false;
+
+    for (int i = 0; i < strMain.size(); i++)
+    {
+        if (strMain[i] == subString[j])
+        {
+            j++;
+            if (j == subString.size())
+            {
+                cout << "Substring was found";
+                break;
+            }
+        }
+        else
+        {
+            j = 0;
+            continue;
+        }
+
+    }
+}
+*/
+//Задание:Вывод памяти
+/*
+#include <iostream>
+#include <windows.h>
+using namespace std;
+
+string* returnTest(string& str)
+{
+    string* stringPtr = new string;//Создание памяти
+    //под string по адресу 00000ABCX54 
+    *stringPtr = str;// Берём по адресу 00000ABCX54 значение
+    //И устанавливаем его в test по адресу str
+    return stringPtr;
+}
+
+int main()
+{
+    setlocale(LC_ALL, "russian");//Писать на русском языке разрешает
+    
+    string str = "test";
+    string* newStr = returnTest(str);
+
+    cout << newStr << endl;
+    cout << *newStr << endl;
+    cout << &*newStr << endl;
+    cout << *&*newStr << endl;
+    cout << &*&*newStr << endl;
+    cout << *&*&*newStr << endl;
+    cout << &*&*&*newStr << endl;
+    cout << *&*&*&*newStr << endl;
+    cout << &*&*&*&*newStr << endl;
+    cout << *&*&*&*&*newStr << endl;
+    cout << &*&*&*&*&*newStr << endl;
+    cout << *&*&*&*&*&*newStr << endl;
+}
+*/
+//Задание:Вводим массив и в конце выводит цифры которые повторялись
+/*
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL,"russian");
+    int n;
+    cout << "Введите размер массива: ";
+    cin >> n;
+
+    vector<int> arr(n);
+    
+    cout << "Введите элементы массива: ";
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
+
+    unordered_map<int, int> frequency;
+
+    for (int i = 0; i < n; i++) {
+        frequency[arr[i]]++;
+    }
+
+    cout << "Повторяющиеся элементы: ";
+    bool found = false;
+    for (const auto &pair : frequency) {
+        if (pair.second > 1) {
+            cout << pair.first << " ";
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "Нет повторяющихся элементов.";
+    }
+
+    cout << endl;
+    return 0;
+}
+*/
+//Задание:Выводит матрицу
+/*
+#include <iostream>
+#include <vector>
+#include <limits>
+using namespace std;
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n, m;
+
+    cout << "Введите количество строк (n): ";
+    cin >> n;
+    cout << "Введите количество столбцов (m): ";
+    cin >> m;
+
+    
+    vector<vector<double>> matrix(n, vector<double>(m));
+
+    
+    cout << "Введите элементы матрицы:\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {
+            cin >> matrix[i][j];
+        }
+    }
+
+    double max_of_mins = numeric_limits<double>::lowest(); 
+    int max_row_index = -1;
+    int max_col_index = -1;
+
+    
+    for (int i = 0; i < n; i++) {
+        double min_in_row = numeric_limits<double>::max();
+        int min_index = -1;
+
+        for (int j = 0; j < m; j++) {
+            if (matrix[i][j] < min_in_row) {
+                min_in_row = matrix[i][j];
+                min_index = j; 
+            }
+        }
+
+        if (min_in_row > max_of_mins) {
+            max_of_mins = min_in_row;
+            max_row_index = i;
+            max_col_index = min_index;
+        }
+    }
+
+    cout << "Максимальный из минимальных элементов: " << max_of_mins << endl;
+    cout << "Индексы элемента: (" << max_row_index << ", " << max_col_index << ")" << endl;
+
+    return 0;
+}
+*/
+//Задание:Вытворяет какие-то вещи с матрицей возможно все символы в нули
+/*
+#include <iostream>
+#include <vector>
+using namespace std;
+
+bool allZeros(const vector<int>& row) {
+    for (int num : row) {
+        if (num != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool allSame(const vector<int>& row) {
+    for (size_t i = 1; i < row.size(); ++i) {
+        if (row[i] != row[i - 1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool allEven(const vector<int>& row) {
+    for (int num : row) {
+        if (num % 2 != 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isMonotonic(const vector<int>& row) {
+    bool increasing = true;
+    bool decreasing = true;
+
+    for (size_t i = 1; i < row.size(); ++i) {
+        if (row[i] < row[i - 1]) {
+            increasing = false;
+        }
+        if (row[i] > row[i - 1]) {
+            decreasing = false;
+        }
+    }
+    return increasing || decreasing;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int n;
+
+    cout << "Введите порядок матрицы (n): ";
+    cin >> n;
+
+    vector<vector<int>> matrix(n, vector<int>(n));
+
+    cout << "Введите элементы матрицы:\n";
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> matrix[i][j];
+        }
+    }
+
+    cout << "Номера строк, где:\n";
+
+    cout << "a) Все элементы равны нулю: ";
+    for (int i = 0; i < n; i++) {
+        if (allZeros(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    cout << "b) Элементы одинаковы: ";
+    for (int i = 0; i < n; i++) {
+        if (allSame(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    cout << "c) Все элементы четные: ";
+    for (int i = 0; i < n; i++) {
+        if (allEven(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    cout << "d) Элементы образуют монотонную последовательность: ";
+    for (int i = 0; i < n; i++) {
+        if (isMonotonic(matrix[i])) {
+            cout << i + 1 << " ";
+        }
+    }
+    cout << endl;
+
+    return 0;
+}
+*/
