@@ -1,0 +1,141 @@
+1-Реализуйте на любом ЯП (желательно С++) алгоритм сортировки пузырьком -
+#include <iostream>
+using namespace std;
+
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+            }
+        }
+    }
+}
+
+void OPTIMIZATION(int arr[], int n) {
+    bool swapped;
+    for (int i = 0; i < n - 1; i++) {
+        swapped = false;
+        for (int j = 0; j < n - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+    }
+}
+
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; i++) {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int arr[] = { 64, 34, 25, 12, 22, 11, 90 };
+    int n = sizeof(arr) / sizeof(arr[0]);
+
+    cout << "Исходный массив: ";
+    printArray(arr, n);
+
+    OPTIMIZATION(arr, n);
+
+    cout << "Отсортированный массив: ";
+    printArray(arr, n);
+
+    return 0;
+}
+
+2-Реализуйте на любом ЯП (желательно С++) алгоритм линейного поиска - 
+#include <iostream>
+using namespace std;
+
+template <typename T>
+int linearSearch(const T arr[], int size, const T& target) {
+    for (int i = 0; i < size; i++) {
+        if (arr[i] == target) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int intArr[] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+    int size = sizeof(intArr) / sizeof(intArr[0]);
+
+    int target = 18;
+    int result = linearSearch(intArr, size, target);
+
+    if (result != -1) {
+        cout << "Элемент " << target << " найден по индексу: " << result << endl;
+    }
+    else {
+        cout << "Элемент " << target << " не найден" << endl;
+    }
+
+    return 0;
+}
+
+3-Реализуйте на любом ЯП (желательно С++) алгоритм бинарного поиска -
+#include <iostream>
+using namespace std;
+
+template <typename T>
+int binarySearch(const T arr[], int size, const T& target) {
+    int left = 0;
+    int right = size - 1;
+
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+
+        if (arr[mid] == target) {
+            return mid;
+        }
+        else if (arr[mid] < target) {
+            left = mid + 1;
+        }
+        else {
+            right = mid - 1;
+        }
+    }
+
+    return -1;
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    const int size = 10;
+    int sortedArr[size] = { 1, 3, 5, 7, 9, 11, 13, 15, 17, 19 };
+
+    cout << "Отсортированный массив: ";
+    for (int i = 0; i < size; i++) {
+        cout << sortedArr[i] << " ";
+    }
+    cout << endl;
+
+    int target = 7;
+    int result = binarySearch(sortedArr, size, target);
+
+    if (result != -1) {
+        cout << "Элемент " << target << " найден по индексу: " << result << endl;
+    }
+    else {
+        cout << "Элемент " << target << " не найден" << endl;
+    }
+
+    return 0;
+}
+5-Посчитайте сложности каждого из реализованных алгоритмов, напишите ее и обоснуйте, из чего берется такая сложность.-
+Из всех реализованных алгоритмов самым сложным является алгоритм Хаффмана
+сложности-
+-Бинарные деревья
+-Умные указатели
+-Построение приоритетной очереди
+-Управление памятью
+-Визуализация
+
+
