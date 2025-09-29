@@ -1,0 +1,189 @@
+#include <iostream>
+#include <unordered_map>
+#include <string>
+
+using namespace std;
+
+class PhoneBook {
+private:
+    unordered_map<string, string> contacts;
+
+public:
+    void addContact(const string& name, const string& phone) {
+        auto result = contacts.insert({name, phone});
+        if (result.second) {
+            cout << "Контакт '" << name << "' успешно добавлен.\n";
+        } else {
+            cout << "Контакт '" << name << "' уже существует. Используйте обновление.\n";
+        }
+    }
+
+    void updateContact(const string& name, const string& phone) {
+        auto it = contacts.find(name);
+        if (it != contacts.end()) {
+            it->second = phone;
+            cout << "Контакт '" << name << "' успешно обновлен.\n";
+        } else {
+            cout << "Контакт '" << name << "' не найден.\n";
+        }
+    }
+
+    void removeContact(const string& name) {
+        auto it = contacts.find(name);
+        if (it != contacts.end()) {
+            contacts.erase(it);
+            cout << "Контакт '" << name << "' успешно удален.\n";
+        } else {
+            cout << "Контакт '" << name << "' не найден.\n";
+        }
+    }
+
+    void findContact(const string& name) {
+        auto it = contacts.find(name);
+        if (it != contacts.end()) {
+            cout << "Найден контакт: " << it->first << " - " << it->second << "\n";
+        } else {
+            cout << "Контакт '" << name << "' не найден.\n";
+        }
+    }
+
+    void displayAllContacts() {
+        if (contacts.empty()) {
+            cout << "Телефонная книга пуста.\n";
+            return;
+        }
+
+        cout << "\nВсе контакты (" << contacts.size() << "):\n";
+        cout << "-------------------\n";
+        for (const auto& contact : contacts) {
+            cout << contact.first << " : " << contact.second << "\n";
+        }
+        cout << "-------------------\n";
+    }
+
+    size_t getContactCount() const {
+        return contacts.size();
+    }
+
+    bool contactExists(const string& name) const {
+        return contacts.find(name) != contacts.end();
+    }
+};
+
+void demonstratePhoneBook() {
+    PhoneBook phoneBook;
+
+    cout << "=== ДЕМОНСТРАЦИЯ РАБОТЫ ТЕЛЕФОННОЙ КНИГИ ===\n\n";
+
+    cout << "1. Добавление контактов:\n";
+    phoneBook.addContact("Иван Иванов", "+7-123-456-7890");
+    phoneBook.addContact("Петр Петров", "+7-987-654-3210");
+    phoneBook.addContact("Мария Сидорова", "+7-555-123-4567");
+    phoneBook.addContact("Анна Козлова", "+7-444-789-0123");
+    
+    phoneBook.addContact("Иван Иванов", "+7-999-999-9999");
+    
+    cout << endl;
+
+    cout << "2. Вывод всех контактов:\n";
+    phoneBook.displayAllContacts();
+    cout << endl;
+
+    cout << "3. Поиск контактов:\n";
+    phoneBook.findContact("Иван Иванов");
+    phoneBook.findContact("Несуществующий Контакт");
+    cout << endl;
+
+    cout << "4. Обновление контакта:\n";
+    phoneBook.updateContact("Петр Петров", "+7-111-222-3333");
+    phoneBook.findContact("Петр Петров");
+    cout << endl;
+
+    cout << "5. Удаление контакта:\n";
+    phoneBook.removeContact("Мария Сидорова");
+    phoneBook.removeContact("Несуществующий Контакт");
+    cout << endl;
+
+    cout << "6. Финальный список контактов:\n";
+    phoneBook.displayAllContacts();
+}
+
+void interactivePhoneBook() {
+    PhoneBook phoneBook;
+    int choice;
+    string name, phone;
+
+    cout << "=== ИНТЕРАКТИВНАЯ ТЕЛЕФОННАЯ КНИГА ===\n";
+
+    do {
+        cout << "\nМеню:\n";
+        cout << "1. Добавить контакт\n";
+        cout << "2. Удалить контакт\n";
+        cout << "3. Найти контакт\n";
+        cout << "4. Показать все контакты\n";
+        cout << "5. Обновить контакт\n";
+        cout << "6. Количество контактов\n";
+        cout << "0. Выход\n";
+        cout << "Выберите действие: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                cout << "Введите имя: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Введите номер телефона: ";
+                getline(cin, phone);
+                phoneBook.addContact(name, phone);
+                break;
+
+            case 2:
+                cout << "Введите имя для удаления: ";
+                cin.ignore();
+                getline(cin, name);
+                phoneBook.removeContact(name);
+                break;
+
+            case 3:
+                cout << "Введите имя для поиска: ";
+                cin.ignore();
+                getline(cin, name);
+                phoneBook.findContact(name);
+                break;
+
+            case 4:
+                phoneBook.displayAllContacts();
+                break;
+
+            case 5:
+                cout << "Введите имя: ";
+                cin.ignore();
+                getline(cin, name);
+                cout << "Введите новый номер телефона: ";
+                getline(cin, phone);
+                phoneBook.updateContact(name, phone);
+                break;
+
+            case 6:
+                cout << "Количество контактов: " << phoneBook.getContactCount() << endl;
+                break;
+
+            case 0:
+                cout << "Выход из программы.\n";
+                break;
+
+            default:
+                cout << "Неверный выбор. Попробуйте снова.\n";
+        }
+    } while (choice != 0);
+}
+
+int main() {
+    demonstratePhoneBook();
+
+    cout << "\n\n";
+    
+    interactivePhoneBook();
+
+    return 0;
+}
