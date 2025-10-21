@@ -1,0 +1,304 @@
+using System;
+using System.Data;
+using Microsoft.Data.SqlClient;
+
+class Program
+{
+    static string connectionString = "Data Source=(localdb)\\mssqllocaldb;" +
+        "Initial Catalog=WW;Integrated Security=True";
+
+    static void Main()
+    {
+        SqlConnection connection = new SqlConnection(connectionString);
+        try
+        {
+            connection.Open();
+            Console.WriteLine("Подключение к базе данных успешно!");
+
+            // Создание таблиц и заполнение данными
+            CreateTablesAndData(connection);
+
+            bool flag = true;
+            while (flag)
+            {
+                Console.WriteLine(@"Что вы хотите сделать?:
+1) Выбрать все из таблицы
+2) Добавить данные в таблицу
+3) Показать все таблицы
+4) ВЫХОД
+");
+                int choice = Convert.ToInt32(Console.ReadLine());
+                switch (choice)
+                {
+                    case 1:
+                        SelectFromTable(connection);
+                        break;
+                    case 2:
+                        InsertIntoTable(connection);
+                        break;
+                    case 3:
+                        DisplayAllTables(connection);
+                        break;
+                    case 4:
+                        flag = false;
+                        break;
+                    default:
+                        Console.WriteLine("Неверный выбор!");
+                        break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+        finally
+        {
+            connection.Close();
+            Console.WriteLine("Подключение к базе данных закрыто");
+        }
+    }
+
+    static void CreateTablesAndData(SqlConnection connection)
+    {
+        string sqlExpression = @"
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Clients' AND xtype='U')
+BEGIN
+    CREATE TABLE Clients (
+        ClientID INT PRIMARY KEY IDENTITY(1,1),
+        ClientPhone NVARCHAR(20) NOT NULL,
+        ClientEmail NVARCHAR(100) NOT NULL
+    );
+
+    CREATE TABLE Couriers (
+        CourierID INT PRIMARY KEY IDENTITY(1,1),
+        CourierPhone NVARCHAR(20) NOT NULL,
+        CourierCity NVARCHAR(50) NOT NULL
+    );
+
+    CREATE TABLE Restaurants (
+        RestaurantID INT PRIMARY KEY IDENTITY(1,1),
+        RestaurantName NVARCHAR(100) NOT NULL,
+        RestaurantType NVARCHAR(50) NOT NULL,
+        RestaurantCity NVARCHAR(50) NOT NULL
+    );
+
+    CREATE TABLE Orders (
+        OrderID INT PRIMARY KEY IDENTITY(1,1),
+        OrderAmount DECIMAL(10,2) NOT NULL,
+        ClientID INT NOT NULL,
+        RestaurantID INT NOT NULL,
+        CourierID INT NOT NULL,
+        OrderCity NVARCHAR(50) NOT NULL,
+        FOREIGN KEY (ClientID) REFERENCES Clients(ClientID),
+        FOREIGN KEY (RestaurantID) REFERENCES Restaurants(RestaurantID),
+        FOREIGN KEY (CourierID) REFERENCES Couriers(CourierID)
+    );
+
+    INSERT INTO Clients (ClientPhone, ClientEmail) VALUES 
+    ('+79161234567', 'strogo@mail.ru'),
+    ('+79262345678', 'evelome@gmail.com'),
+    ('+79373456789', 'kyosuke@yandex.ru'),
+    ('+79484567890', 'godzila@outlook.com'),
+    ('+79595678901', 's1mple@hotmail.com');
+
+    INSERT INTO Couriers (CourierPhone, CourierCity) VALUES 
+    ('+79616789012', 'Москва'),
+    ('+79727890123', 'Санкт-Петербург'),
+    ('+79838901234', 'Москва'),
+    ('+79949012345', 'Казань'),
+    ('+79050123456', 'Санкт-Петербург');
+
+    INSERT INTO Restaurants (RestaurantName, RestaurantType, RestaurantCity) VALUES 
+    ('WWTeam', 'Русская', 'Москва'),
+    ('Суши Мастер', 'Японская', 'Санкт-Петербург'),
+    ('Бургер Кинг', 'Фастфуд', 'Москва'),
+    ('Додо Пицца', 'Итальянская', 'Казань'),
+    ('КФС', 'Фастфуд', 'Санкт-Петербург');
+
+    INSERT INTO Orders (OrderAmount, ClientID, RestaurantID, CourierID, OrderCity) VALUES 
+    (550.50, 1, 1, 1, 'Москва'),
+    (1200.00, 2, 2, 2, 'Санкт-Петербург'),
+    (780.25, 3, 3, 3, 'Москва'),
+    (340.75, 4, 4, 4, 'Казань'),
+    (890.00, 5, 5, 5, 'Санкт-Петербург'),
+    (450.30, 1, 2, 1, 'Москва'),
+    (670.80, 2, 3, 2, 'Санкт-Петербург'),
+    (1250.40, 3, 4, 3, 'Казань'),
+    (330.90, 4, 5, 4, 'Санкт-Петербург'),
+    (980.60, 5, 1, 5, 'Москва');
+END
+";
+
+        SqlCommand command = new SqlCommand(sqlExpression, connection);
+        command.ExecuteNonQuery();
+        Console.WriteLine("Таблицы созданы и заполнены данными!");
+    }
+
+    static void SelectFromTable(SqlConnection connection)
+    {
+        Console.WriteLine(@"Выберите таблицу:
+1) Клиенты
+2) Курьеры
+3) Рестораны
+4) Заказы");
+        
+        int tableChoice = Convert.ToInt32(Console.ReadLine());
+        string tableName = "";
+        
+        switch (tableChoice)
+        {
+            case 1: tableName = "Clients"; break;
+            case 2: tableName = "Couriers"; break;
+            case 3: tableName = "Restaurants"; break;
+            case 4: tableName = "Orders"; break;
+            default: 
+                Console.WriteLine("Неверный выбор таблицы!");
+                return;
+        }
+
+        string sqlExpression = $"SELECT * FROM {tableName}";
+        SqlCommand command = new SqlCommand(sqlExpression, connection);
+        SqlDataReader reader = command.ExecuteReader();
+
+        Console.WriteLine("\n" + new string('-', 80));
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            Console.Write($"{reader.GetName(i),-20}");
+        }
+        Console.WriteLine();
+        Console.WriteLine(new string('-', 80));
+
+        while (reader.Read())
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                Console.Write($"{reader[i],-20}");
+            }
+            Console.WriteLine();
+        }
+        reader.Close();
+        Console.WriteLine(new string('-', 80));
+    }
+
+    static void InsertIntoTable(SqlConnection connection)
+    {
+        Console.WriteLine(@"В какую таблицу добавить данные?
+1) Клиенты
+2) Курьеры
+3) Рестораны
+4) Заказы");
+        
+        int tableChoice = Convert.ToInt32(Console.ReadLine());
+        
+        switch (tableChoice)
+        {
+            case 1:
+                InsertClient(connection);
+                break;
+            case 2:
+                InsertCourier(connection);
+                break;
+            case 3:
+                InsertRestaurant(connection);
+                break;
+            case 4:
+                InsertOrder(connection);
+                break;
+            default:
+                Console.WriteLine("Неверный выбор таблицы!");
+                break;
+        }
+    }
+
+    static void InsertClient(SqlConnection connection)
+    {
+        Console.Write("Введите телефон клиента: ");
+        string phone = Console.ReadLine();
+        Console.Write("Введите email клиента: ");
+        string email = Console.ReadLine();
+
+        string sqlExpression = $"INSERT INTO Clients (ClientPhone, ClientEmail) VALUES ('{phone}', '{email}')";
+        SqlCommand command = new SqlCommand(sqlExpression, connection);
+        int result = command.ExecuteNonQuery();
+        Console.WriteLine($"Добавлено {result} записей в таблицу Клиенты");
+    }
+
+    static void InsertCourier(SqlConnection connection)
+    {
+        Console.Write("Введите телефон курьера: ");
+        string phone = Console.ReadLine();
+        Console.Write("Введите город курьера: ");
+        string city = Console.ReadLine();
+
+        string sqlExpression = $"INSERT INTO Couriers (CourierPhone, CourierCity) VALUES ('{phone}', '{city}')";
+        SqlCommand command = new SqlCommand(sqlExpression, connection);
+        int result = command.ExecuteNonQuery();
+        Console.WriteLine($"Добавлено {result} записей в таблицу Курьеры");
+    }
+
+    static void InsertRestaurant(SqlConnection connection)
+    {
+        Console.Write("Введите название ресторана: ");
+        string name = Console.ReadLine();
+        Console.Write("Введите тип ресторана: ");
+        string type = Console.ReadLine();
+        Console.Write("Введите город ресторана: ");
+        string city = Console.ReadLine();
+
+        string sqlExpression = $"INSERT INTO Restaurants (RestaurantName, RestaurantType, RestaurantCity) VALUES ('{name}', '{type}', '{city}')";
+        SqlCommand command = new SqlCommand(sqlExpression, connection);
+        int result = command.ExecuteNonQuery();
+        Console.WriteLine($"Добавлено {result} записей в таблицу Рестораны");
+    }
+
+    static void InsertOrder(SqlConnection connection)
+    {
+        Console.Write("Введите сумму заказа: ");
+        string amount = Console.ReadLine();
+        Console.Write("Введите ID клиента: ");
+        string clientId = Console.ReadLine();
+        Console.Write("Введите ID ресторана: ");
+        string restaurantId = Console.ReadLine();
+        Console.Write("Введите ID курьера: ");
+        string courierId = Console.ReadLine();
+        Console.Write("Введите город заказа: ");
+        string city = Console.ReadLine();
+
+        string sqlExpression = $"INSERT INTO Orders (OrderAmount, ClientID, RestaurantID, CourierID, OrderCity) VALUES ({amount}, {clientId}, {restaurantId}, {courierId}, '{city}')";
+        SqlCommand command = new SqlCommand(sqlExpression, connection);
+        int result = command.ExecuteNonQuery();
+        Console.WriteLine($"Добавлено {result} записей в таблицу Заказы");
+    }
+
+    static void DisplayAllTables(SqlConnection connection)
+    {
+        string[] tables = { "Clients", "Couriers", "Restaurants", "Orders" };
+        
+        foreach (string tableName in tables)
+        {
+            Console.WriteLine($"\n=== {tableName.ToUpper()} ===");
+            
+            string sqlExpression = $"SELECT * FROM {tableName}";
+            SqlCommand command = new SqlCommand(sqlExpression, connection);
+            SqlDataReader reader = command.ExecuteReader();
+
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                Console.Write($"{reader.GetName(i),-20}");
+            }
+            Console.WriteLine();
+            Console.WriteLine(new string('-', reader.FieldCount * 20));
+
+            while (reader.Read())
+            {
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    Console.Write($"{reader[i],-20}");
+                }
+                Console.WriteLine();
+            }
+            reader.Close();
+        }
+    }
+}
