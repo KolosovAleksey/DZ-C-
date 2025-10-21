@@ -1,0 +1,259 @@
+using System;
+using System.Data;
+using Microsoft.Data.SqlClient;
+
+string connectionString = "Data Source=(localdb)\\mssqllocaldb;" +
+    "Initial Catalog=WW;Integrated Security=True";
+SqlConnection connection = new SqlConnection(connectionString);
+try
+{
+    connection.Open();
+    Console.WriteLine("Получилось подключиться");
+    bool flag = true;
+    while (flag)
+    {
+        Console.WriteLine(@"Что вы хотите сделац?:
+1) Выбрать все из таблицы
+2) Добавить данные в таблицу
+3) ВЫХОД
+");
+        int choice = Convert.ToInt16(Console.ReadLine());
+        switch (choice)
+        {
+            case 1:
+                ShowAllFromTable();
+                break;
+            case 2:
+                AddDataToTable();
+                break;
+            case 3:
+                flag = false;
+                break;
+            default:
+                Console.WriteLine("Неверный выбор!");
+                break;
+        }
+    }
+}
+catch(Exception ex)
+{
+    Console.WriteLine(ex.ToString());
+}
+finally
+{
+    connection.Close();
+    Console.WriteLine("БД закрыта");
+}
+
+void ShowAllFromTable()
+{
+    Console.WriteLine(@"Выберите таблицу:
+1) Employees
+2) Departments
+3) Orders
+");
+    int tableChoice = Convert.ToInt16(Console.ReadLine());
+    
+    string tableName = "";
+    string sqlExpression = "";
+    
+    switch (tableChoice)
+    {
+        case 1:
+            tableName = "Employees";
+            sqlExpression = "SELECT * FROM Employees";
+            break;
+        case 2:
+            tableName = "Departments";
+            sqlExpression = "SELECT * FROM Departments";
+            break;
+        case 3:
+            tableName = "Orders";
+            sqlExpression = "SELECT * FROM Orders";
+            break;
+        default:
+            Console.WriteLine("Неверный выбор таблицы!");
+            return;
+    }
+    
+    SqlCommand command = new SqlCommand(sqlExpression, connection);
+    SqlDataReader reader = command.ExecuteReader();
+    
+    for (int i = 0; i < reader.FieldCount; i++)
+    {
+        Console.Write($"{reader.GetName(i)}\t");
+    }
+    Console.WriteLine();
+    
+    while (reader.Read())
+    {
+        for (int i = 0; i < reader.FieldCount; i++)
+        {
+            Console.Write($"{reader.GetValue(i)}\t");
+        }
+        Console.WriteLine();
+    }
+    
+    reader.Close();
+}
+
+void AddDataToTable()
+{
+    Console.WriteLine(@"В какую таблицу добавить данные?:
+1) Employees
+2) Departments
+3) Orders
+");
+    int tableChoice = Convert.ToInt16(Console.ReadLine());
+    
+    switch (tableChoice)
+    {
+        case 1:
+            AddEmployee();
+            break;
+        case 2:
+            AddDepartment();
+            break;
+        case 3:
+            AddOrder();
+            break;
+        default:
+            Console.WriteLine("Неверный выбор таблицы!");
+            break;
+    }
+}
+
+void AddEmployee()
+{
+    Console.WriteLine("Введите имя и фамилию сотрудника: ");
+    string ename = Console.ReadLine();
+    Console.WriteLine("Введите номер его департамента: ");
+    string edepid = Console.ReadLine();
+
+    string checkDeptSql = $"SELECT COUNT(*) FROM Departments WHERE DepartmentID = {edepid}";
+    SqlCommand checkCmd = new SqlCommand(checkDeptSql, connection);
+    int deptCount = (int)checkCmd.ExecuteScalar();
+    
+    if (deptCount == 0)
+    {
+        Console.WriteLine("Ошибка: Департамент с таким ID не существует!");
+        return;
+    }
+
+    string sqlExpression = $"INSERT INTO Employees (Name, DepartmentID) VALUES ('{ename}', {edepid})";
+    SqlCommand command = new SqlCommand(sqlExpression, connection);
+    int rowsAffected = command.ExecuteNonQuery();
+    
+    if (rowsAffected > 0)
+        Console.WriteLine("Сотрудник успешно добавлен!");
+    else
+        Console.WriteLine("Ошибка при добавлении сотрудника!");
+}
+
+void AddDepartment()
+{
+    Console.WriteLine("Введите название департамента: ");
+    string deptName = Console.ReadLine();
+
+    string sqlExpression = $"INSERT INTO Departments (DepartmentName) VALUES ('{deptName}')";
+    SqlCommand command = new SqlCommand(sqlExpression, connection);
+    int rowsAffected = command.ExecuteNonQuery();
+    
+    if (rowsAffected > 0)
+        Console.WriteLine("Департамент успешно добавлен!");
+    else
+        Console.WriteLine("Ошибка при добавлении департамента!");
+}
+
+void AddOrder()
+{
+    Console.WriteLine("Введите ID сотрудника: ");
+    string employeeId = Console.ReadLine();
+    Console.WriteLine("Введите дату заказа (гггг-мм-дд): ");
+    string orderDate = Console.ReadLine();
+
+    string checkEmployeeSql = $"SELECT COUNT(*) FROM Employees WHERE EmployeeID = {employeeId}";
+    SqlCommand checkCmd = new SqlCommand(checkEmployeeSql, connection);
+    int employeeCount = (int)checkCmd.ExecuteScalar();
+    
+    if (employeeCount == 0)
+    {
+        Console.WriteLine("Ошибка: Сотрудник с таким ID не существует!");
+        return;
+    }
+
+    string sqlExpression = $"INSERT INTO Orders (EmployeeID, OrderDate) VALUES ({employeeId}, '{orderDate}')";
+    SqlCommand command = new SqlCommand(sqlExpression, connection);
+    int rowsAffected = command.ExecuteNonQuery();
+    
+    if (rowsAffected > 0)
+        Console.WriteLine("Заказ успешно добавлен!");
+    else
+        Console.WriteLine("Ошибка при добавлении заказа!");
+}
+
+string sqlExpressionStart = @"
+CREATE TABLE Departments (
+    DepartmentID INT PRIMARY KEY IDENTITY(1,1),
+    DepartmentName NVARCHAR(50) NOT NULL
+);
+
+CREATE TABLE Employees (
+    EmployeeID INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    DepartmentID INT NOT NULL,
+    CONSTRAINT FK_Employees_Departments FOREIGN KEY (DepartmentID) 
+        REFERENCES Departments(DepartmentID)
+);
+
+CREATE TABLE Orders (
+    OrderID INT PRIMARY KEY IDENTITY(1,1),
+    EmployeeID INT NOT NULL,
+    OrderDate DATE NOT NULL,
+    CONSTRAINT FK_Orders_Employees FOREIGN KEY (EmployeeID) 
+        REFERENCES Employees(EmployeeID)
+);
+
+INSERT INTO Departments (DepartmentName) VALUES 
+('IT'),
+('Sales'),
+('Marketing'),
+('Finance'),
+('HR'),
+('Operations'),
+('Customer Service');
+
+INSERT INTO Employees (Name, DepartmentID) VALUES 
+('John Smith', 1),
+('Maria Johnson', 1),
+('Alex Brown', 2),
+('Helen Davis', 2),
+('Dmitry Wilson', 3),
+('Olga Miller', 3),
+('Sergei Taylor', 4),
+('Anna Anderson', 4),
+('Paul Thomas', 5),
+('Natalie Jackson', 6),
+('Andrew White', 7),
+('Irina Harris', 7);
+
+INSERT INTO Orders (EmployeeID, OrderDate) VALUES 
+(1, '2024-01-15'),
+(1, '2024-01-20'),
+(2, '2024-01-16'),
+(3, '2024-01-17'),
+(3, '2024-01-22'),
+(3, '2024-01-25'),
+(4, '2024-01-18'),
+(5, '2024-01-19'),
+(6, '2024-01-21'),
+(7, '2024-01-23'),
+(8, '2024-01-24'),
+(9, '2024-01-26'),
+(10, '2024-01-27'),
+(11, '2024-01-28'),
+(12, '2024-01-29'),
+(1, '2024-02-01'),
+(2, '2024-02-02'),
+(3, '2024-02-03');
+";
