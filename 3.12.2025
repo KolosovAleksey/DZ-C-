@@ -1,1 +1,129 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
 
+enum FillMode {
+    MANUAL_INPUT,
+    RANDOM_NUMBERS,
+    SEQUENTIAL_NUMBERS
+};
+
+void fillMatrix(int matrix[4][5], FillMode mode = SEQUENTIAL_NUMBERS,
+    int minVal = 0, int maxVal = 100) {
+
+    switch (mode) {
+    case MANUAL_INPUT: {
+        cout << "=== РУЧНОЙ ВВОД МАТРИЦЫ ===" << endl;
+        cout << "Введите 20 целых чисел (4 строки по 5 элементов):" << endl;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
+                cout << "Элемент [" << i << "][" << j << "]: ";
+                cin >> matrix[i][j];
+            }
+        }
+        cout << "Матрица успешно заполнена!" << endl << endl;
+        break;
+    }
+
+    case RANDOM_NUMBERS: {
+        static bool seeded = false;
+        if (!seeded) {
+            srand(time(0));
+            seeded = true;
+        }
+
+        cout << "=== ЗАПОЛНЕНИЕ СЛУЧАЙНЫМИ ЧИСЛАМИ ===" << endl;
+        cout << "Диапазон: от " << minVal << " до " << maxVal << endl;
+
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
+                matrix[i][j] = minVal + rand() % (maxVal - minVal + 1);
+            }
+        }
+        cout << "Матрица успешно заполнена случайными числами!" << endl << endl;
+        break;
+    }
+
+    case SEQUENTIAL_NUMBERS: {
+        cout << "=== ЗАПОЛНЕНИЕ ПОСЛЕДОВАТЕЛЬНЫМИ ЧИСЛАМИ ===" << endl;
+        int value = 1;
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 5; j++) {
+                matrix[i][j] = value++;
+            }
+        }
+        cout << "Матрица заполнена числами от 1 до 20!" << endl << endl;
+        break;
+    }
+    }
+}
+
+void printMatrix(const int matrix[4][5], const string& title = "Матрица 4x5:") {
+    cout << title << endl;
+    cout << "┌─────────────────────────────┐" << endl;
+    for (int i = 0; i < 4; i++) {
+        cout << "│ ";
+        for (int j = 0; j < 5; j++) {
+            cout << matrix[i][j];
+            if (j < 4) cout << "\t";
+        }
+        cout << " │" << endl;
+    }
+    cout << "└─────────────────────────────┘" << endl << endl;
+}
+
+int sumMatrix(const int matrix[4][5]) {
+    int sum = 0;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 5; j++) {
+            sum += matrix[i][j];
+        }
+    }
+    return sum;
+}
+
+void findMinMax(const int matrix[4][5], int& minVal, int& maxVal) {
+    minVal = matrix[0][0];
+    maxVal = matrix[0][0];
+
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 5; j++) {
+            if (matrix[i][j] < minVal) minVal = matrix[i][j];
+            if (matrix[i][j] > maxVal) maxVal = matrix[i][j];
+        }
+    }
+}
+
+int main() {
+    setlocale(LC_ALL, "russian");
+    int matrix[4][5];
+
+    cout << "ПРОГРАММА ДЛЯ РАБОТЫ С МАТРИЦЕЙ 4x5" << endl;
+    cout << "===================================" << endl << endl;
+
+    cout << "Заполнение последовательными числами" << endl;
+    fillMatrix(matrix, SEQUENTIAL_NUMBERS);
+    printMatrix(matrix);
+    cout << "Сумма всех элементов: " << sumMatrix(matrix) << endl << endl;
+
+    cout << "Заполнение случайными числами от -50 до 50" << endl;
+    fillMatrix(matrix, RANDOM_NUMBERS, -50, 50);
+    printMatrix(matrix);
+
+    int minVal, maxVal;
+    findMinMax(matrix, minVal, maxVal);
+    cout << "Минимальный элемент: " << minVal << endl;
+    cout << "Максимальный элемент: " << maxVal << endl;
+    cout << "Сумма всех элементов: " << sumMatrix(matrix) << endl << endl;
+
+    cout << "Случайные числа от 1 до 1000" << endl;
+    fillMatrix(matrix, RANDOM_NUMBERS, 1, 1000);
+    printMatrix(matrix, "Случайная матрица 1-1000:");
+
+    cout << "ДОП ИНФА:" << endl;
+    cout << "Размер матрицы: 4 строки × 5 столбцов = 20 элементов" << endl;
+    cout << "Общий объем памяти: 20 × sizeof(int) = " << 20 * sizeof(int) << " байт" << endl;
+
+    return 0;
+}
