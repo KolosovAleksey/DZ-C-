@@ -1,0 +1,173 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+from itertools import permutations
+import time
+
+class DeliveryOptimizer:
+    def __init__(self, num_points=10, max_weight=100):
+        self.num_points = num_points
+        self.max_weight = max_weight
+        
+        np.random.seed(42)
+        self.coordinates = np.random.rand(num_points, 2) * 100
+        
+        self.order_weights = np.random.randint(1, 30, num_points)
+        self.order_weights[0] = 0  # Склад
+        
+        self.distance_matrix = np.zeros((num_points, num_points))
+        for i in range(num_points):
+            for j in range(num_points):
+                self.distance_matrix[i, j] = np.linalg.norm(
+                    self.coordinates[i] - self.coordinates[j]
+                )
+        
+        self.fuel_consumption = 0.1
+        
+    def calculate_total_cost(self, route):
+        """Расчет общей стоимости маршрута"""
+        total_distance = 0
+        total_weight = 0
+        
+        for i in range(len(route) - 1):
+            from_node = route[i]
+            to_node = route[i + 1]
+            total_distance += self.distance_matrix[from_node, to_node]
+            total_weight += self.order_weights[to_node]
+            
+            if total_weight > self.max_weight:
+                return float('inf')
+        
+        time_cost = total_distance / 50 * 60  # в минутах
+        
+        fuel_cost = total_distance * self.fuel_consumption * 100
+        
+        total_cost = 0.6 * time_cost + 0.4 * fuel_cost
+        
+        return total_cost
+    
+    def brute_force_tsp(self):
+        points = list(range(1, self.num_points))
+        best_route = None
+        best_cost = float('inf')
+        
+        for perm in permutations(points):
+            route = [0] + list(perm) + [0]
+            cost = self.calculate_total_cost(route)
+            
+            if cost < best_cost:
+                best_cost = cost
+                best_route = route
+        
+        return best_route, best_cost
+    
+    def nearest_neighbor_tsp(self):
+        unvisited = set(range(1, self.num_points))
+        route = [0]  # Начинаем со склада
+        current = 0
+        total_weight = 0
+        
+        while unvisited:
+            nearest = min(
+                unvisited, 
+                key=lambda x: self.distance_matrix[current, x]
+                if total_weight + self.order_weights[x] <= self.max_weight 
+                else float('inf')
+            )
+            
+            route.append(nearest)
+            total_weight += self.order_weights[nearest]
+            unvisited.remove(nearest)
+            current = nearest
+        
+        route.append(0)
+        return route, self.calculate_total_cost(route)
+    
+    def visualize_routes(self, route, title="Оптимальный маршрут доставки"):
+        fig, ax = plt.subplots(2, 2, figsize=(15, 12))
+        
+        ax[0, 0].scatter(self.coordinates[:, 0], self.coordinates[:, 1], 
+                         c='blue', s=100, label='Точки доставки')
+        ax[0, 0].scatter(self.coordinates[0, 0], self.coordinates[0, 1], 
+                         c='red', s=200, marker='s', label='Склад')
+        
+        for i in range(len(route) - 1):
+            from_node = route[i]
+            to_node = route[i + 1]
+            ax[0, 0].plot(
+                [self.coordinates[from_node, 0], self.coordinates[to_node, 0]],
+                [self.coordinates[from_node, 1], self.coordinates[to_node, 1]],
+                'g-', alpha=0.6, linewidth=2
+            )
+        
+        ax[0, 0].set_title(title)
+        ax[0, 0].set_xlabel('X координата')
+        ax[0, 0].set_ylabel('Y координата')
+        ax[0, 0].grid(True)
+        ax[0, 0].legend()
+        
+        # 2. Веса заказов
+        ax[0, 1].bar(range(self.num_points), self.order_weights)
+        ax[0, 1].set_title('Веса заказов по точкам')
+        ax[0, 1].set_xlabel('Номер точки')
+        ax[0, 1].set_ylabel('Вес заказа (кг)')
+        ax[0, 1].axhline(y=self.max_weight, color='r', linestyle='--', 
+                         label=f'Макс. грузоподъемность: {self.max_weight}кг')
+        ax[0, 1].legend()
+        ax[0, 1].grid(True)
+        
+        # 3. Матрица расстояний
+        im = ax[1, 0].imshow(self.distance_matrix, cmap='hot', interpolation='nearest')
+        ax[1, 0].set_title('Матрица расстояний между точками')
+        ax[1, 0].set_xlabel('К точке')
+        ax[1, 0].set_ylabel('От точки')
+        plt.colorbar(im, ax=ax[1, 0])
+        
+        # 4. Статистика маршрута
+        total_distance = sum(
+            self.distance_matrix[route[i], route[i+1]] 
+            for i in range(len(route)-1)
+        )
+        total_time = total_distance / 50 * 60
+        fuel_cost = total_distance * self.fuel_consumption * 100
+        
+        stats_text = f"""
+        Статистика маршрута:
+        Общее расстояние: {total_distance:.2f} км
+        Время доставки: {total_time:.2f} мин
+        Стоимость топлива: {fuel_cost:.2f} руб
+        Общая стоимость: {self.calculate_total_cost(route):.2f}
+        Количество точек: {len(route)-2}
+        """
+        
+        ax[1, 1].text(0.1, 0.5, stats_text, fontsize=12, 
+                      verticalalignment='center', transform=ax[1, 1].transAxes)
+        ax[1, 1].axis('off')
+        ax[1, 1].set_title('Статистика маршрута')
+        
+        plt.tight_layout()
+        plt.show()
+        
+        return total_distance, total_time, fuel_cost
+
+if __name__ == "__main__":
+    print("=== Пример 1: Оптимизация доставки ===")
+    
+    optimizer = DeliveryOptimizer(num_points=8, max_weight=150)
+    
+    print("\n1. Решение полным перебором:")
+    start_time = time.time()
+    best_route_bf, best_cost_bf = optimizer.brute_force_tsp()
+    print(f"   Время выполнения: {time.time() - start_time:.4f} сек")
+    print(f"   Оптимальный маршрут: {best_route_bf}")
+    print(f"   Общая стоимость: {best_cost_bf:.2f}")
+    
+    print("\n2. Решение жадным алгоритмом:")
+    start_time = time.time()
+    best_route_nn, best_cost_nn = optimizer.nearest_neighbor_tsp()
+    print(f"   Время выполнения: {time.time() - start_time:.4f} сек")
+    print(f"   Маршрут: {best_route_nn}")
+    print(f"   Общая стоимость: {best_cost_nn:.2f}")
+    
+    print("\n3. Визуализация результатов...")
+    optimizer.visualize_routes(best_route_bf, "Оптимальный маршрут (полный перебор)")
