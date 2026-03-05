@@ -1,0 +1,271 @@
+Задача 1: Класс «Пользователь»
+
+class User {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  sayHi() {
+    console.log(`Привет, меня зовут ${this.name}`);
+  }
+}
+
+const user1 = new User("Анна");
+const user2 = new User("Иван");
+
+user1.sayHi();
+user2.sayHi();
+
+
+
+
+Задача 2: Счетчик с состоянием
+
+class Counter {
+  constructor() {
+    this.count = 0;
+  }
+  
+  increase() {
+    this.count++;
+  }
+  
+  decrease() {
+    this.count--;
+  }
+  
+  getCurrent() {
+    return this.count;
+  }
+}
+
+const counter = new Counter();
+counter.increase();
+counter.increase();
+counter.increase();
+counter.decrease();
+console.log(counter.getCurrent());
+
+
+
+
+Задача 3: Наследование «Животные»
+
+class Animal {
+  constructor(name) {
+    this.name = name;
+  }
+  
+  speak() {
+    console.log("Животное издает звук");
+  }
+}
+
+class Dog extends Animal {
+  speak() {
+    console.log("Гав!");
+  }
+}
+
+const dog = new Dog("Бобик");
+dog.speak();
+
+
+
+
+Задача 4: «Прямоугольник»
+
+class Rectangle {
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+  
+  get area() {
+    return this.width * this.height;
+  }
+  
+  get perimeter() {
+    return 2 * (this.width + this.height);
+  }
+}
+
+const rect = new Rectangle(5, 3);
+console.log(rect.area);
+console.log(rect.perimeter);
+
+
+
+
+Задача 5: Статический метод «Математика»
+
+class MathHelper {
+  static add(a, b) {
+    return a + b;
+  }
+  
+  static multiply(a, b) {
+    return a * b;
+  }
+}
+
+console.log(MathHelper.add(2, 5)); // 7
+console.log(MathHelper.multiply(3, 4)); // 12
+
+
+
+
+Задача 6: «Кошелек»
+
+class Wallet {
+  #balance;
+  
+  constructor(initialBalance = 0) {
+    this.#balance = initialBalance;
+  }
+  
+  deposit(amount) {
+    if (amount > 0) {
+      this.#balance += amount;
+    }
+  }
+  
+  getBalance() {
+    return this.#balance;
+  }
+}
+
+const wallet = new Wallet(100);
+wallet.deposit(50);
+console.log(wallet.getBalance());
+
+
+
+
+Задача 7: «Товар»
+
+class Product {
+  constructor(initialPrice = 0) {
+    this._price = initialPrice;
+  }
+  
+  set price(value) {
+    if (value < 0) {
+      this._price = 0;
+    } else {
+      this._price = value;
+    }
+  }
+  
+  get price() {
+    return this._price;
+  }
+}
+
+const product = new Product(100);
+console.log(product.price);
+
+product.price = -50;
+console.log(product.price);
+
+product.price = 200;
+console.log(product.price);
+
+
+
+
+Задача 8: «Библиотека»
+
+class Book {
+  constructor(title, isRead = false) {
+    this.title = title;
+    this.isRead = isRead;
+  }
+  
+  markAsRead() {
+    this.isRead = true;
+  }
+}
+
+const book1 = new Book("Война и мир");
+const book2 = new Book("Преступление и наказание");
+const book3 = new Book("Мастер и Маргарита");
+
+book2.markAsRead();
+
+console.log(`${book1.title}: ${book1.isRead ? 'прочитана' : 'не прочитана'}`);
+console.log(`${book2.title}: ${book2.isRead ? 'прочитана' : 'не прочитана'}`);
+console.log(`${book3.title}: ${book3.isRead ? 'прочитана' : 'не прочитана'}`);
+
+
+
+
+Задача 9: «Заказ»
+
+class Item {
+  constructor(name, price) {
+    this.name = name;
+    this.price = price;
+  }
+}
+
+class Order {
+  constructor() {
+    this.items = [];
+  }
+  
+  addItem(item) {
+    this.items.push(item);
+  }
+  
+  getTotal() {
+    return this.items.reduce((total, item) => total + item.price, 0);
+  }
+}
+
+const order = new Order();
+order.addItem(new Item("Книга", 500));
+order.addItem(new Item("Ручка", 50));
+order.addItem(new Item("Тетрадь", 100));
+
+console.log(order.getTotal()); 
+
+
+
+
+Задача 10: Мини-проект «Список задач»
+
+class TodoList {
+  #tasks;
+  
+  constructor() {
+    this.#tasks = [];
+  }
+  
+  addTask(text) {
+    this.#tasks.push(text);
+  }
+  
+  removeTask(index) {
+    if (index >= 0 && index < this.#tasks.length) {
+      this.#tasks.splice(index, 1);
+    }
+  }
+  
+  listTasks() {
+    console.log("Список задач:");
+    this.#tasks.forEach((task, index) => {
+      console.log(`${index + 1}. ${task}`);
+    });
+  }
+}
+
+const todo = new TodoList();
+
+todo.addTask("Купить продукты");
+todo.addTask("Сделать зарядку");
+todo.addTask("Почитать книгу");
+
+todo.listTasks();
+todo.removeTask(1);
+todo.listTasks();
